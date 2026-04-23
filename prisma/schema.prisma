@@ -1,0 +1,249 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  passwordHash          String?
+  fullName              String?
+  emailVerified         DateTime?
+  image                 String?
+  createdAt             DateTime @default(now())
+  stripeCustomerId      String?
+  subscriptionTier      String   @default("free") // 'free' | 'starter' | 'pro' | 'premium'
+  subscriptionStatus    String?  // 'active' | 'canceled' | 'past_due'
+  subscriptionEndDate   DateTime?
+  aiCreditsUsed         Int      @default(0)
+  aiCreditsLimit        Int      @default(3) // free tier gets 3 AI operations/month
+
+  // Relations
+  cvDocuments           CVDocument[]
+  jobDescriptions       JobDescription[]
+  atsScans              ATSScan[]
+  recruiterScans        RecruiterScan[]
+  interviewScores       InterviewScore[]
+  bulletImprovements    BulletImprovement[]
+  generatedDocuments    GeneratedDocument[]
+  applications          Application[]
+  analyticsEvents       AnalyticsEvent[]
+  accounts              Account[]
+  sessions              Session[]
+
+  @@map("users")
+}
+
+model CVDocument {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String?
+  rawText     String
+  parsedJson  String   // JSONB equivalent in SQLite as String
+  fileUrl     String?
+  version     Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atsScans    ATSScan[]
+  recruiterScans RecruiterScan[]
+  interviewScores InterviewScore[]
+  bulletImprovements BulletImprovement[]
+  generatedDocuments GeneratedDocument[]
+  applications Application[]
+
+  @@map("cv_documents")
+}
+
+model JobDescription {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String?
+  company     String?
+  rawText     String
+  extractedKeywords String // JSONB as String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atsScans    ATSScan[]
+  interviewScores InterviewScore[]
+  generatedDocuments GeneratedDocument[]
+  applications Application[]
+
+  @@map("job_descriptions")
+}
+
+model ATSScan {
+  id              String   @id @default(cuid())
+  userId          String
+  cvId            String?
+  jobId           String?
+  overallScore    Int
+  keywordMatches  String   // JSONB as String
+  formatIssues    String   // JSONB as String
+  recommendations String   // JSONB as String
+  createdAt       DateTime @default(now())
+
+  // Relations
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvDocument      CVDocument?  @relation(fields: [cvId], references: [id])
+  jobDescription  JobDescription? @relation(fields: [jobId], references: [id])
+
+  @@map("ats_scans")
+}
+
+model RecruiterScan {
+  id                      String   @id @default(cuid())
+  userId                  String
+  cvId                    String?
+  clarityScore            Int
+  impactScore             Int
+  firstImpressionScore    Int
+  overallScore            Int
+  feedback                String   // JSONB as String
+  createdAt               DateTime @default(now())
+
+  // Relations
+  user                    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvDocument              CVDocument?  @relation(fields: [cvId], references: [id])
+
+  @@map("recruiter_scans")
+}
+
+model InterviewScore {
+  id                      String   @id @default(cuid())
+  userId                  String
+  cvId                    String?
+  jobId                   String?
+  readinessScore          Int
+  actionItems             String   // JSONB as String
+  predictedInterviewRate  String
+  createdAt               DateTime @default(now())
+
+  // Relations
+  user                    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvDocument              CVDocument?      @relation(fields: [cvId], references: [id])
+  jobDescription          JobDescription?  @relation(fields: [jobId], references: [id])
+
+  @@map("interview_scores")
+}
+
+model BulletImprovement {
+  id                  String   @id @default(cuid())
+  userId              String
+  cvId                String?
+  originalBullet      String
+  improvedBullet      String
+  improvementRationale String
+  applied             Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  // Relations
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvDocument          CVDocument?  @relation(fields: [cvId], references: [id])
+
+  @@map("bullet_improvements")
+}
+
+model GeneratedDocument {
+  id          String   @id @default(cuid())
+  userId      String
+  cvId        String?
+  jobId       String?
+  type        String   // 'cover_letter' | 'linkedin_summary' | 'tailored_cv'
+  content     String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvDocument  CVDocument?      @relation(fields: [cvId], references: [id])
+  jobDescription JobDescription? @relation(fields: [jobId], references: [id])
+
+  @@map("generated_documents")
+}
+
+model Application {
+  id              String   @id @default(cuid())
+  userId          String
+  cvId            String?
+  jobId           String?
+  company         String
+  jobTitle        String
+  status          String   @default("saved") // 'saved'|'applied'|'screening'|'interview'|'offer'|'rejected'
+  appliedDate     DateTime?
+  notes           String?
+  nextAction      String?
+  nextActionDate  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvDocument      CVDocument?      @relation(fields: [cvId], references: [id])
+  jobDescription  JobDescription? @relation(fields: [jobId], references: [id])
+
+  @@map("applications")
+}
+
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  eventName   String
+  properties  String   // JSONB as String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("analytics_events")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}

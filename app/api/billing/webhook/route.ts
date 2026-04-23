@@ -1,0 +1,116 @@
+import { NextRequest, NextResponse } from "next/server"
+import Stripe from "stripe"
+import { prisma } from "@/lib/prisma"
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-03-25.dahlia",
+})
+
+export async function POST(req: NextRequest) {
+  const body = await req.text()
+  const sig = req.headers.get("stripe-signature")
+
+  if (!sig || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
+  }
+
+  let event: Stripe.Event
+
+  try {
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET)
+  } catch (err) {
+    return NextResponse.json({ error: "Webhook error" }, { status: 400 })
+  }
+
+  try {
+    switch (event.type) {
+      case "customer.subscription.created":
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription
+        const userId = subscription.metadata?.userId
+
+        if (!userId) break
+
+        const priceId = subscription.items.data[0].price.id
+        let tier = "free"
+
+        if (priceId === process.env.STRIPE_PRICE_STARTER) tier = "starter"
+        else if (priceId === process.env.STRIPE_PRICE_PRO) tier = "pro"
+        else if (priceId === process.env.STRIPE_PRICE_PREMIUM) tier = "premium"
+
+        const endDate = (subscription as any).current_period_end
+          ? new Date((subscription as any).current_period_end * 1000)
+          : null
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            subscriptionStatus: subscription.status,
+            subscriptionTier: tier,
+            subscriptionEndDate: endDate,
+            aiCreditsUsed: 0, // Reset credits on new subscription
+          },
+        })
+        break
+      }
+
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription
+        const userId = subscription.metadata?.userId
+
+        if (!userId) break
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            subscriptionStatus: "canceled",
+            subscriptionTier: "free",
+          },
+        })
+        break
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice
+        const customerId = invoice.customer as string
+
+        const user = await prisma.user.findFirst({
+          where: { stripeCustomerId: customerId },
+        })
+
+        if (user) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { subscriptionStatus: "past_due" },
+          })
+        }
+        break
+      }
+
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object as Stripe.Invoice
+        const customerId = invoice.customer as string
+
+        const user = await prisma.user.findFirst({
+          where: { stripeCustomerId: customerId },
+        })
+
+        if (user) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              subscriptionStatus: "active",
+              aiCreditsUsed: 0, // Reset monthly credits
+            },
+          })
+        }
+        break
+      }
+    }
+
+    return NextResponse.json({ received: true })
+  } catch (error) {
+    console.error("Webhook error:", error)
+    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 })
+  }
+}

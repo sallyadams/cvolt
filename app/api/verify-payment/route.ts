@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 export const runtime = "nodejs";
+export const maxDuration = 15;
 
-// Always returns HTTP 200 so the client can read `data.error` on failures.
-// Whether the PDF unlocks is controlled solely by `data.verified`.
+// Always returns HTTP 200 — the client reads `data.verified` to decide whether to unlock the PDF.
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get("session_id");
 
@@ -12,28 +12,26 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       verified: false,
       payment_status: "unknown",
-      error: "Missing session_id in request.",
+      error: "Missing session_id.",
     });
   }
 
   const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
 
   if (!secretKey) {
-    console.error("[verify-payment] STRIPE_SECRET_KEY is not set in .env.local");
+    console.error("[verify-payment] STRIPE_SECRET_KEY is not set");
     return NextResponse.json({
       verified: false,
       payment_status: "unknown",
-      error: "STRIPE_SECRET_KEY is not set. Add it to .env.local and restart the server.",
+      error: "STRIPE_SECRET_KEY is not set. Add it to your Vercel environment variables and redeploy.",
     });
   }
 
   if (secretKey.startsWith("pk_")) {
-    console.error("[verify-payment] Key is a publishable key, not a secret/restricted key");
     return NextResponse.json({
       verified: false,
       payment_status: "unknown",
-      error:
-        "STRIPE_SECRET_KEY is a publishable key (pk_). Use the secret key (sk_) or restricted key (rk_) instead.",
+      error: "STRIPE_SECRET_KEY is a publishable key (pk_). Use the secret key (sk_) or a restricted key (rk_).",
     });
   }
 
@@ -42,11 +40,11 @@ export async function GET(req: NextRequest) {
   });
 
   try {
-    console.log("[verify-payment] retrieving session:", sessionId.slice(0, 20) + "...");
+    console.log("[verify-payment] retrieving session:", sessionId.slice(0, 25) + "…");
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const verified = session.payment_status === "paid";
 
-    console.log("[verify-payment] payment_status:", session.payment_status, "→ verified:", verified);
+    console.log("[verify-payment] payment_status:", session.payment_status, "verified:", verified);
 
     return NextResponse.json({
       verified,
@@ -59,8 +57,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         verified: false,
         payment_status: "unknown",
-        error:
-          "Stripe rejected the API key (401). It may have been rolled or deleted. Go to stripe.com/dashboard → Developers → API Keys and copy the current secret key into .env.local, then restart the server.",
+        error: "Stripe rejected the API key (401). Check STRIPE_SECRET_KEY in your Vercel environment variables.",
+      });
+    }
+
+    if (err instanceof Stripe.errors.StripePermissionError) {
+      return NextResponse.json({
+        verified: false,
+        payment_status: "unknown",
+        error: "Stripe permission denied. Your restricted key (rk_) needs 'Checkout Sessions: Read' permission. Open your Stripe dashboard → Developers → Restricted Keys and enable it.",
       });
     }
 
