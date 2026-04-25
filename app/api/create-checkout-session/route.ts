@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
   const priceInCents = Number(process.env.STRIPE_PRICE_CENTS ?? "499");
 
   try {
+    // Create the checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -77,13 +78,13 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      // {CHECKOUT_SESSION_ID} is a Stripe template literal — Stripe fills it in at redirect time
+      // Use template variable — Stripe automatically fills in the session ID on redirect
       success_url: `${baseUrl}/build?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/build?payment=cancelled`,
       metadata: { product: "cv_download" },
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url, sessionId: session.id });
   } catch (err) {
     console.error("[create-checkout-session]", err);
 

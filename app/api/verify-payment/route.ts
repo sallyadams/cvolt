@@ -44,20 +44,28 @@ export async function GET(req: NextRequest) {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const verified = session.payment_status === "paid";
 
-    console.log("[verify-payment] payment_status:", session.payment_status, "verified:", verified);
+    console.log("[verify-payment] session retrieved:", {
+      id: session.id.slice(0, 25) + "…",
+      payment_status: session.payment_status,
+      verified,
+    });
 
     return NextResponse.json({
       verified,
       payment_status: session.payment_status,
     });
   } catch (err) {
-    console.error("[verify-payment] Stripe error:", err);
+    console.error("[verify-payment] Stripe error:", {
+      name: err instanceof Error ? err.name : "Unknown",
+      message: err instanceof Error ? err.message : String(err),
+      type: err instanceof Stripe.errors.StripeError ? err.constructor.name : "Non-Stripe Error",
+    });
 
     if (err instanceof Stripe.errors.StripeAuthenticationError) {
       return NextResponse.json({
         verified: false,
         payment_status: "unknown",
-        error: "Stripe rejected the API key (401). Check STRIPE_SECRET_KEY in your Vercel environment variables.",
+        error: "Stripe API authentication failed (401). Please verify STRIPE_SECRET_KEY is set correctly on Vercel.",
       });
     }
 
@@ -65,7 +73,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         verified: false,
         payment_status: "unknown",
-        error: "Stripe permission denied. Your restricted key (rk_) needs 'Checkout Sessions: Read' permission. Open your Stripe dashboard → Developers → Restricted Keys and enable it.",
+        error: "Stripe permission denied. Your API key needs 'Checkout Sessions: Read' permission.",
       });
     }
 
@@ -73,7 +81,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         verified: false,
         payment_status: "unknown",
-        error: `Stripe invalid request: ${err.message}`,
+        error: `Invalid session ID or request: ${err.message}`,
+      });
+    }
+
+    // Generic Stripe error
+    if (err instanceof Stripe.errors.StripeError) {
+      return NextResponse.json({
+        verified: false,
+        payment_status: "unknown",
+        error: `Stripe error: ${err.message}`,
       });
     }
 

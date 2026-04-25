@@ -103,18 +103,25 @@ export default function BuildPage() {
     setPaymentStatus("verifying");
 
     try {
+      console.log("[build] Verifying payment with sessionId:", sessionId.slice(0, 25) + "…");
       const res = await fetch(`/api/verify-payment?session_id=${encodeURIComponent(sessionId)}`);
       const data = await res.json();
+
+      console.log("[build] Verification response:", data);
 
       if (data.verified) {
         setIsPaid(true);
         setPaymentStatus("success");
         clearCVStorage();
       } else {
-        setVerifyError(data.error || "Payment could not be verified.");
+        const errorMsg = data.error || "Payment could not be verified.";
+        console.error("[build] Payment verification failed:", errorMsg);
+        setVerifyError(errorMsg);
         setPaymentStatus("error");
       }
-    } catch {
+    } catch (err) {
+      console.error("[build] Verification request failed:", err);
+      setVerifyError(err instanceof Error ? err.message : "Network error during verification.");
       setPaymentStatus("error");
     }
   }
