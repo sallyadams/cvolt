@@ -71,10 +71,10 @@ export async function POST(request: NextRequest) {
           content: `${JOB_MATCHER_PROMPT}
 
 CV Content:
-${cv.content}
+${cv.rawText}
 
 Job Description:
-${job.description}`,
+${job.rawText}`,
         },
       ],
     });
@@ -108,7 +108,7 @@ ${job.description}`,
     await prisma.user.update({
       where: { id: userId },
       data: {
-        creditsUsed: {
+        aiCreditsUsed: {
           increment: 1,
         },
       },

@@ -2,15 +2,19 @@ import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 import { prisma } from "@/lib/prisma"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-03-25.dahlia",
-})
-
 export async function POST(req: NextRequest) {
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Stripe configuration missing" }, { status: 500 })
+  }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2026-03-25.dahlia",
+  })
+
   const body = await req.text()
   const sig = req.headers.get("stripe-signature")
 
-  if (!sig || !process.env.STRIPE_WEBHOOK_SECRET) {
+  if (!sig) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
   }
 

@@ -61,8 +61,8 @@ export async function PUT(
     await prisma.cVVersion.create({
       data: {
         cvId,
-        content: cv.content,
-        filename: cv.filename,
+        content: cv.rawText,
+        filename: cv.title || cv.fileUrl || null,
         version: cv.version,
       },
     });
@@ -71,8 +71,8 @@ export async function PUT(
     const updatedCv = await prisma.cVDocument.update({
       where: { id: cvId },
       data: {
-        content,
-        filename: filename || cv.filename,
+        rawText: content,
+        title: filename || cv.title,
         version: cv.version + 1,
       },
     });

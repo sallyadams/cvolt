@@ -14,9 +14,9 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         email: true,
-        name: true,
-        tier: true,
-        creditsUsed: true,
+        fullName: true,
+        subscriptionTier: true,
+        aiCreditsUsed: true,
         createdAt: true,
       },
     });
