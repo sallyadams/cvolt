@@ -128,9 +128,9 @@ export default function DashboardPage() {
             {/* Quick Actions */}
             <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Link
-                  href="/app/cv"
+                  href="/cv"
                   className="flex items-center justify-center px-6 py-4 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
                 >
                   <span className="text-2xl mr-3">📄</span>
@@ -138,7 +138,7 @@ export default function DashboardPage() {
                 </Link>
 
                 <Link
-                  href="/app/ats"
+                  href="/scan"
                   className="flex items-center justify-center px-6 py-4 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
                 >
                   <span className="text-2xl mr-3">🔍</span>
@@ -146,11 +146,51 @@ export default function DashboardPage() {
                 </Link>
 
                 <Link
-                  href="/app/match"
+                  href="/match"
                   className="flex items-center justify-center px-6 py-4 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
                 >
                   <span className="text-2xl mr-3">🎯</span>
                   <span className="font-medium">Job Matcher</span>
+                </Link>
+
+                <Link
+                  href="/tracker"
+                  className="flex items-center justify-center px-6 py-4 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  <span className="text-2xl mr-3">📊</span>
+                  <span className="font-medium">Application Tracker</span>
+                </Link>
+
+                <Link
+                  href="/bullets"
+                  className="flex items-center justify-center px-6 py-4 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors"
+                >
+                  <span className="text-2xl mr-3">✨</span>
+                  <span className="font-medium">Bullet Improver</span>
+                </Link>
+
+                <Link
+                  href="/interview"
+                  className="flex items-center justify-center px-6 py-4 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+                >
+                  <span className="text-2xl mr-3">🎤</span>
+                  <span className="font-medium">Interview Readiness</span>
+                </Link>
+
+                <Link
+                  href="/cover-letter"
+                  className="flex items-center justify-center px-6 py-4 bg-pink-50 text-pink-700 rounded-lg hover:bg-pink-100 transition-colors"
+                >
+                  <span className="text-2xl mr-3">📝</span>
+                  <span className="font-medium">Cover Letter</span>
+                </Link>
+
+                <Link
+                  href="/linkedin"
+                  className="flex items-center justify-center px-6 py-4 bg-cyan-50 text-cyan-700 rounded-lg hover:bg-cyan-100 transition-colors"
+                >
+                  <span className="text-2xl mr-3">💼</span>
+                  <span className="font-medium">LinkedIn Summary</span>
                 </Link>
               </div>
             </div>
@@ -170,16 +210,48 @@ export default function DashboardPage() {
                     CV Upload & Storage
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <span className={stats.subscriptionTier !== "free" ? "text-green-500" : "text-gray-300"}>
-                      {stats.subscriptionTier !== "free" ? "✓" : "—"}
-                    </span>
-                    <span className="ml-3">Recruiter Scan</span>
+                    <span className="text-green-500 mr-3">✓</span>
+                    Job Matcher
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <span className={stats.subscriptionTier === "pro" || stats.subscriptionTier === "premium" ? "text-green-500" : "text-gray-300"}>
+                    <span className="text-green-500 mr-3">✓</span>
+                    Application Tracker
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className={stats.subscriptionTier !== "free" ? "text-green-500" : "text-gray-300"} mr-3>
+                      {stats.subscriptionTier !== "free" ? "✓" : "—"}
+                    </span>
+                    <span>Recruiter Scan</span>
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className={stats.subscriptionTier !== "free" ? "text-green-500" : "text-gray-300"} mr-3>
+                      {stats.subscriptionTier !== "free" ? "✓" : "—"}
+                    </span>
+                    <span>Bullet Point Improver</span>
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className={stats.subscriptionTier !== "free" ? "text-green-500" : "text-gray-300"} mr-3>
+                      {stats.subscriptionTier !== "free" ? "✓" : "—"}
+                    </span>
+                    <span>Interview Readiness Score</span>
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className={stats.subscriptionTier === "pro" || stats.subscriptionTier === "premium" ? "text-green-500" : "text-gray-300"} mr-3>
                       {stats.subscriptionTier === "pro" || stats.subscriptionTier === "premium" ? "✓" : "—"}
                     </span>
-                    <span className="ml-3">Cover Letter Generator</span>
+                    <span>Cover Letter Generator</span>
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className={stats.subscriptionTier === "pro" || stats.subscriptionTier === "premium" ? "text-green-500" : "text-gray-300"} mr-3>
+                      {stats.subscriptionTier === "pro" || stats.subscriptionTier === "premium" ? "✓" : "—"}
+                    </span>
+                    <span>LinkedIn Summary Generator</span>
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className={stats.subscriptionTier === "pro" || stats.subscriptionTier === "premium" ? "text-green-500" : "text-gray-300"} mr-3>
+                      {stats.subscriptionTier === "pro" || stats.subscriptionTier === "premium" ? "✓" : "—"}
+                    </span>
+                    <span>CV Editor with Version History</span>
                   </li>
                 </ul>
               </div>

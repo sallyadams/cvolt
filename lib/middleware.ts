@@ -11,6 +11,7 @@ export interface TierLimits {
   linkedin_summaries: number
   tailored_cvs: number
   interview_scores: number
+  job_matcher: number
 }
 
 export const TIER_LIMITS: Record<string, TierLimits> = {
@@ -22,6 +23,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     linkedin_summaries: 0,
     tailored_cvs: 0,
     interview_scores: 0,
+    job_matcher: 0,
   },
   starter: {
     ats_scans: 5,
@@ -31,6 +33,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     linkedin_summaries: 1,
     tailored_cvs: 0,
     interview_scores: 3,
+    job_matcher: 3,
   },
   pro: {
     ats_scans: 20,
@@ -40,6 +43,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     linkedin_summaries: 5,
     tailored_cvs: 5,
     interview_scores: 10,
+    job_matcher: 10,
   },
   premium: {
     ats_scans: Infinity,
@@ -49,6 +53,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     linkedin_summaries: Infinity,
     tailored_cvs: Infinity,
     interview_scores: Infinity,
+    job_matcher: Infinity,
   },
 }
 
@@ -99,8 +104,18 @@ export async function incrementAICredits(userId: string) {
   })
 }
 
+export async function requireAuth(
+  req?: NextRequest
+): Promise<{ userId: string } | NextResponse> {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  return { userId: session.user.id }
+}
+
 export async function requireAuthAndFeature(
-  req: NextRequest,
   feature: keyof TierLimits
 ): Promise<{ userId: string } | NextResponse> {
   const session = await getServerSession(authOptions)

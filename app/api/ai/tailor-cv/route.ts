@@ -5,7 +5,7 @@ import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await requireAuthAndFeature(req, "tailored_cvs")
+    const auth = await requireAuthAndFeature("tailored_cvs")
     if (auth instanceof NextResponse) return auth
     const { userId } = auth
 

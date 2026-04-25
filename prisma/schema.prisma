@@ -61,8 +61,23 @@ model CVDocument {
   bulletImprovements BulletImprovement[]
   generatedDocuments GeneratedDocument[]
   applications Application[]
+  versions    CVVersion[]
 
   @@map("cv_documents")
+}
+
+model CVVersion {
+  id        String   @id @default(cuid())
+  cvId      String
+  version   Int
+  content   String
+  filename  String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  cvDocument CVDocument @relation(fields: [cvId], references: [id], onDelete: Cascade)
+
+  @@map("cv_versions")
 }
 
 model JobDescription {
@@ -126,9 +141,15 @@ model InterviewScore {
   userId                  String
   cvId                    String?
   jobId                   String?
-  readinessScore          Int
-  actionItems             String   // JSONB as String
-  predictedInterviewRate  String
+  overallScore            Int
+  technicalSkills         Int
+  softSkills              Int
+  experience              Int
+  communication           Int
+  culturalFit             Int
+  strengths               String   // JSONB as String
+  weaknesses              String   // JSONB as String
+  recommendations         String   // JSONB as String
   createdAt               DateTime @default(now())
 
   // Relations
