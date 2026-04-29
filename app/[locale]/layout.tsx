@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
+import { NextIntlClientProvider } from "next-intl";
+import { ReactNode } from "react";
 
 const locales = ["en", "fr"] as const;
 
@@ -15,5 +16,20 @@ export default async function LocaleLayout({ children, params }: Props) {
     notFound();
   }
 
-  return <>{children}</>;
+  let messages;
+  try {
+    messages = (await import(`../../messages/${locale}.json`)).default;
+  } catch (error) {
+    notFound();
+  }
+
+  return (
+    <html lang={locale}>
+      <body>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
 }
