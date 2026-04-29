@@ -3,6 +3,15 @@ import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
 
+interface CVExperience {
+  title?: string
+  bullets?: string[]
+}
+
+interface CVData {
+  experience?: CVExperience[]
+}
+
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuthAndFeature("bullets")
@@ -23,7 +32,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Extract bullets from CV
-    let parsedCV
+    let parsedCV: CVData
     try {
       parsedCV = JSON.parse(cv.parsedJson)
     } catch {
@@ -31,8 +40,8 @@ export async function POST(req: NextRequest) {
     }
 
     const bullets = section
-      ? parsedCV.experience?.find((exp: any) => exp.title?.toLowerCase().includes(section.toLowerCase()))?.bullets || []
-      : parsedCV.experience?.flatMap((exp: any) => exp.bullets) || []
+      ? parsedCV.experience?.find((exp) => exp.title?.toLowerCase().includes(section.toLowerCase()))?.bullets || []
+      : parsedCV.experience?.flatMap((exp) => exp.bullets) || []
 
     if (!bullets.length) {
       return NextResponse.json({ error: "No bullets found" }, { status: 400 })

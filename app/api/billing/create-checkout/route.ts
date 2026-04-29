@@ -26,6 +26,14 @@ function getBaseUrl(req: NextRequest): string {
   return "http://localhost:3000"
 }
 
+function getRequiredEnvVar(name: string): string {
+  const value = process.env[name]?.trim()
+  if (!value) {
+    throw new Error(`Environment variable ${name} is required but not set`)
+  }
+  return value
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -44,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     const stripe = new Stripe(secretKey, {
-      apiVersion: "2026-03-25.dahlia",
+      apiVersion: "2026-04-22.dahlia",
     })
 
     // Get or create Stripe customer
@@ -72,9 +80,9 @@ export async function POST(req: NextRequest) {
 
     // Map tier to Stripe price ID (must be set up in Stripe dashboard)
     const tierToPriceId: Record<string, string> = {
-      starter: process.env.STRIPE_PRICE_STARTER!,
-      pro: process.env.STRIPE_PRICE_PRO!,
-      premium: process.env.STRIPE_PRICE_PREMIUM!,
+      starter: getRequiredEnvVar("STRIPE_PRICE_STARTER"),
+      pro: getRequiredEnvVar("STRIPE_PRICE_PRO"),
+      premium: getRequiredEnvVar("STRIPE_PRICE_PREMIUM"),
     }
 
     const priceId = tierToPriceId[tier]
@@ -99,6 +107,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session_new.url })
   } catch (error) {
     console.error("Checkout error:", error)
+    if (error instanceof Error && error.message.includes("Environment variable")) {
+      return NextResponse.json({ error: "Payment system not configured" }, { status: 500 })
+    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

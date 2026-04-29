@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2026-03-25.dahlia",
+    apiVersion: "2026-04-22.dahlia",
   })
 
   const body = await req.text()
@@ -41,6 +41,9 @@ export async function POST(req: NextRequest) {
         if (priceId === process.env.STRIPE_PRICE_STARTER) tier = "starter"
         else if (priceId === process.env.STRIPE_PRICE_PRO) tier = "pro"
         else if (priceId === process.env.STRIPE_PRICE_PREMIUM) tier = "premium"
+        else {
+          console.warn(`[webhook] Unrecognized price ID: ${priceId}. Available: STARTER=${process.env.STRIPE_PRICE_STARTER}, PRO=${process.env.STRIPE_PRICE_PRO}, PREMIUM=${process.env.STRIPE_PRICE_PREMIUM}`)
+        }
 
         const endDate = (subscription as any).current_period_end
           ? new Date((subscription as any).current_period_end * 1000)

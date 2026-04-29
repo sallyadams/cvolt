@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
   }
 
   const stripe = new Stripe(secretKey, {
-    apiVersion: "2026-03-25.dahlia",
+    apiVersion: "2026-04-22.dahlia",
   });
 
   const baseUrl = getBaseUrl(req);
