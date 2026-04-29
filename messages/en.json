@@ -1,0 +1,150 @@
+{
+  "nav": {
+    "brand": "CVolt⚡",
+    "howItWorks": "How it works",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "buildMyCV": "Build my CV →"
+  },
+  "hero": {
+    "eyebrow": "Now launching · From €1",
+    "headline": "Your CV. Optimised in 60 seconds.",
+    "subtitle": "Paste a job description. Our AI rewrites your CV to match it — with the exact keywords recruiters search for. Pass ATS filters, land interviews. One-time payment from €1.",
+    "ctaPrimary": "Build my CV — free preview",
+    "ctaSecondary": "See how it works",
+    "trust1": "No subscription",
+    "trust2": "Takes 60 seconds",
+    "trust3": "ATS 85+ guaranteed"
+  },
+  "socialProof": {
+    "title": "Built by job-seekers, for job-seekers",
+    "stats": {
+      "cvs": "CVs optimised",
+      "ats": "ATS pass rate",
+      "time": "Average time saved"
+    }
+  },
+  "howItWorks": {
+    "title": "How it works",
+    "subtitle": "Three simple steps to a perfectly optimised CV",
+    "step1": {
+      "title": "Paste job description",
+      "description": "Copy and paste the job posting you want to apply for"
+    },
+    "step2": {
+      "title": "AI optimisation",
+      "description": "Our AI analyses the job and rewrites your CV with matching keywords"
+    },
+    "step3": {
+      "title": "Download PDF",
+      "description": "Get your ATS-optimised CV ready to submit"
+    }
+  },
+  "features": {
+    "title": "Why CVolt?",
+    "subtitle": "Everything you need to land your dream job",
+    "ats": {
+      "title": "ATS Optimisation",
+      "description": "85%+ pass rate guaranteed. We use the same keywords recruiters search for."
+    },
+    "ai": {
+      "title": "AI-Powered",
+      "description": "Advanced AI that understands job requirements and tailors your CV perfectly."
+    },
+    "speed": {
+      "title": "Lightning Fast",
+      "description": "Complete CV optimisation in under 60 seconds. No waiting around."
+    },
+    "privacy": {
+      "title": "Privacy First",
+      "description": "Your data stays private. We don't store your CV or personal information."
+    }
+  },
+  "pricing": {
+    "title": "Simple pricing",
+    "subtitle": "One-time payment, lifetime access",
+    "price": "€4.99",
+    "description": "One CV optimisation",
+    "features": [
+      "AI-powered optimisation",
+      "ATS 85%+ guarantee",
+      "PDF download",
+      "Lifetime access"
+    ],
+    "cta": "Get started"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "questions": {
+      "what": {
+        "q": "What is CV optimisation?",
+        "a": "CV optimisation means tailoring your CV to match specific job requirements, using the exact keywords and phrases employers are looking for."
+      },
+      "ats": {
+        "q": "What is ATS?",
+        "a": "ATS (Applicant Tracking System) is software that many companies use to filter CVs before they reach human recruiters. Our optimisation ensures your CV passes these filters."
+      },
+      "guarantee": {
+        "q": "Is the 85% ATS pass rate really guaranteed?",
+        "a": "Yes! If your optimised CV doesn't pass ATS filters, we'll refund your payment. We stand behind our AI technology."
+      },
+      "privacy": {
+        "q": "Is my data safe?",
+        "a": "Absolutely. We don't store your CV, personal information, or job descriptions. Everything is processed in real-time and immediately discarded."
+      }
+    }
+  },
+  "footer": {
+    "copyright": "© 2024 CVolt. All rights reserved.",
+    "links": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact"
+    }
+  },
+  "build": {
+    "title": "Build your CV",
+    "subtitle": "Optimise your CV for the perfect job",
+    "form": {
+      "name": "Full name",
+      "namePlaceholder": "Enter your full name",
+      "jobTitle": "Job title",
+      "jobTitlePlaceholder": "e.g. Software Engineer",
+      "jobDescription": "Job description",
+      "jobDescriptionPlaceholder": "Paste the job description here...",
+      "generate": "Generate my CV",
+      "generating": "Generating...",
+      "error": "Error generating CV. Please try again."
+    },
+    "payment": {
+      "downloadTitle": "Download PDF",
+      "downloadButton": "Download PDF — €4.99",
+      "paying": "Processing payment...",
+      "success": "Payment successful! PDF unlocked.",
+      "cancelled": "Payment cancelled.",
+      "error": "Payment verification failed. Please try again.",
+      "loading": "Loading PDF..."
+    },
+    "preview": {
+      "title": "CV Preview",
+      "generating": "Generating your optimised CV..."
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try again",
+    "back": "Back",
+    "next": "Next",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "language": {
+    "switch": "Language",
+    "english": "English",
+    "french": "Français"
+  }
+}

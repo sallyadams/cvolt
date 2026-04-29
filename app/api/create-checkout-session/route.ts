@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { locales } from "@/i18n";
 
 export const runtime = "nodejs";
 export const maxDuration = 15;
@@ -36,6 +37,24 @@ function getBaseUrl(req: NextRequest): string {
   return "http://localhost:3000";
 }
 
+/**
+ * Extract locale from the request URL
+ */
+function getLocaleFromUrl(req: NextRequest): string {
+  const url = new URL(req.url);
+  const pathname = url.pathname;
+
+  // Check if the path starts with a locale prefix
+  for (const locale of locales) {
+    if (pathname.startsWith(`/${locale}/`)) {
+      return locale;
+    }
+  }
+
+  // Default to English
+  return 'en';
+}
+
 export async function POST(req: NextRequest) {
   const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
 
@@ -58,6 +77,7 @@ export async function POST(req: NextRequest) {
   });
 
   const baseUrl = getBaseUrl(req);
+  const locale = getLocaleFromUrl(req);
   const priceInCents = Number(process.env.STRIPE_PRICE_CENTS ?? "499");
 
   try {
@@ -79,8 +99,8 @@ export async function POST(req: NextRequest) {
       ],
       mode: "payment",
       // Use template variable — Stripe automatically fills in the session ID on redirect
-      success_url: `${baseUrl}/build?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/build?payment=cancelled`,
+      success_url: `${baseUrl}/${locale}/build?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/${locale}/build?payment=cancelled`,
       metadata: { product: "cv_download" },
     });
 

@@ -1,22 +1,8 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-
-/* ═══════════════════════════════════════════════════════════════════════
-   CVolt — Landing Page
-   Editorial design · Warm palette · Fraunces + DM Sans
-   Pairs with /build route (your existing 6-step builder)
-═══════════════════════════════════════════════════════════════════════ */
-
-export default function LandingPage() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+export default function RootPage() {
+  redirect('/en');
+}
 
   return (
     <main className="relative bg-[#f8f6f1] text-[#19181e] overflow-x-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>

@@ -13,7 +13,7 @@ const DownloadPDF = dynamic(() => import("./DownloadPDF"), {
   loading: () => (
     <span className="inline-flex items-center gap-2 bg-amber-200 text-amber-800 font-bold px-5 py-2.5 rounded-lg text-sm cursor-wait">
       <span className="inline-block w-3.5 h-3.5 border-2 border-amber-400 border-t-amber-700 rounded-full animate-spin" />
-      {t('common.loading')}
+      Loading PDF...
     </span>
   ),
 });
