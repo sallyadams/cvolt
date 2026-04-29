@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 import { prisma } from "@/lib/prisma"
 
+const TIER_CREDITS: Record<string, number> = {
+  free: 3,
+  starter: 30,
+  pro: 150,
+  premium: 999999,
+}
+
 export async function POST(req: NextRequest) {
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "Stripe configuration missing" }, { status: 500 })
@@ -28,6 +35,26 @@ export async function POST(req: NextRequest) {
 
   try {
     switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session
+        if (session.mode !== "subscription") break
+
+        const userId = session.metadata?.userId
+        const tier = session.metadata?.tier || "starter"
+        if (!userId) break
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            subscriptionStatus: "active",
+            subscriptionTier: tier,
+            aiCreditsLimit: TIER_CREDITS[tier] ?? 30,
+            aiCreditsUsed: 0,
+          },
+        })
+        break
+      }
+
       case "customer.subscription.created":
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription
@@ -55,7 +82,8 @@ export async function POST(req: NextRequest) {
             subscriptionStatus: subscription.status,
             subscriptionTier: tier,
             subscriptionEndDate: endDate,
-            aiCreditsUsed: 0, // Reset credits on new subscription
+            aiCreditsLimit: TIER_CREDITS[tier] ?? 3,
+            aiCreditsUsed: 0,
           },
         })
         break
@@ -72,6 +100,7 @@ export async function POST(req: NextRequest) {
           data: {
             subscriptionStatus: "canceled",
             subscriptionTier: "free",
+            aiCreditsLimit: TIER_CREDITS.free,
           },
         })
         break

@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
@@ -16,28 +16,38 @@ interface UserStats {
 export default function DashboardPage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [stats, setStats] = useState<UserStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showUpgradeBanner, setShowUpgradeBanner] = useState(false)
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch("/api/dashboard/stats")
+      if (response.ok) {
+        const data = await response.json()
+        setStats(data)
+      }
+    } catch (err) {
+      console.error("Failed to load stats:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!session?.user?.id) return
-
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("/api/dashboard/stats")
-        if (response.ok) {
-          const data = await response.json()
-          setStats(data)
-        }
-      } catch (err) {
-        console.error("Failed to load stats:", err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     fetchStats()
   }, [session])
+
+  useEffect(() => {
+    if (searchParams.get("upgraded") !== "true") return
+    setShowUpgradeBanner(true)
+    router.replace("/app")
+    // Re-fetch after a short delay to let the webhook update the DB
+    const timer = setTimeout(fetchStats, 2500)
+    return () => clearTimeout(timer)
+  }, [searchParams])
 
   if (!session) {
     return <div>Please sign in first</div>
@@ -66,6 +76,19 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {showUpgradeBanner && (
+        <div className="bg-green-50 border-b border-green-200">
+          <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+            <p className="text-green-800 font-medium">
+              Payment successful! Your plan has been upgraded.
+            </p>
+            <button onClick={() => setShowUpgradeBanner(false)} className="text-green-600 hover:text-green-800 text-sm">
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">

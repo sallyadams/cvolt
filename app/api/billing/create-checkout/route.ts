@@ -99,6 +99,7 @@ export async function POST(req: NextRequest) {
       success_url: `${baseUrl}/app?upgraded=true`,
       cancel_url: `${baseUrl}/app/upgrade`,
       allow_promotion_codes: true,
+      metadata: { userId: session.user.id, tier },
       subscription_data: {
         metadata: { userId: session.user.id, tier },
       },
