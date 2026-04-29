@@ -1,24 +1,19 @@
 'use client';
 
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
-
-/* ═══════════════════════════════════════════════════════════════════════
-   CVolt — Landing Page
-   Editorial design · Warm palette · Fraunces + DM Sans
-   Pairs with /build route (your existing 6-step builder)
-═══════════════════════════════════════════════════════════════════════ */
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function LandingPage() {
   const t = useTranslations();
+  const locale = useLocale();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
@@ -42,7 +37,7 @@ export default function LandingPage() {
           : 'bg-transparent'
       }`}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-0.5 text-[1.35rem] font-bold tracking-[-0.03em]" style={{ fontFamily: "'Fraunces', serif" }}>
+          <Link href={`/${locale}`} className="flex items-center gap-0.5 text-[1.35rem] font-bold tracking-[-0.03em]" style={{ fontFamily: "'Fraunces', serif" }}>
             {t('nav.brand')}
           </Link>
 
@@ -56,7 +51,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
             <Link
-              href="/build"
+              href={`/${locale}/build`}
               className="bg-[#19181e] text-white text-[0.82rem] font-semibold px-4 py-2.5 rounded-full hover:bg-[#2c2b34] transition-all duration-200 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(25,24,30,.08)]"
             >
               {t('nav.buildMyCV')}
@@ -104,7 +99,7 @@ export default function LandingPage() {
             {/* CTA row */}
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
               <Link
-                href="/build"
+                href={`/${locale}/build`}
                 className="group inline-flex items-center justify-center gap-2 bg-[#d4922a] text-white font-bold text-[1rem] px-7 py-4 rounded-full hover:brightness-105 hover:-translate-y-0.5 transition-all duration-200 shadow-[0_8px_24px_rgba(212,146,42,.35)]"
               >
                 {t('hero.ctaPrimary')}
@@ -259,15 +254,15 @@ export default function LandingPage() {
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-[#a09cb2]">
                 <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
-                <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="/help" className="hover:text-white transition-colors">Help</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Help</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm text-[#a09cb2]">
-                <li><a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
             </div>
           </div>
@@ -276,9 +271,9 @@ export default function LandingPage() {
               {t('footer.copyright')}
             </p>
             <div className="flex items-center gap-6 text-sm text-[#a09cb2]">
-              <a href="/privacy" className="hover:text-white transition-colors">{t('footer.links.privacy')}</a>
-              <a href="/terms" className="hover:text-white transition-colors">{t('footer.links.terms')}</a>
-              <a href="/contact" className="hover:text-white transition-colors">{t('footer.links.contact')}</a>
+              <a href="#" className="hover:text-white transition-colors">{t('footer.links.privacy')}</a>
+              <a href="#" className="hover:text-white transition-colors">{t('footer.links.terms')}</a>
+              <a href="#" className="hover:text-white transition-colors">{t('footer.links.contact')}</a>
             </div>
           </div>
         </div>

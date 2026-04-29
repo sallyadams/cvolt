@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -63,6 +63,7 @@ function clearCVStorage() {
 
 export default function BuildPage() {
   const t = useTranslations();
+  const locale = useLocale();
   const [name, setName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -213,12 +214,12 @@ export default function BuildPage() {
     <main className="min-h-screen bg-gray-50 text-gray-900">
       <nav className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="font-bold text-lg">
+          <Link href={`/${locale}`} className="font-bold text-lg">
             {t('nav.brand')}
           </Link>
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
-            <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href={`/${locale}`} className="text-sm text-gray-600 hover:text-gray-900">
               ← {t('common.back')}
             </Link>
           </div>
