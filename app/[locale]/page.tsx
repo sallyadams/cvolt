@@ -51,7 +51,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
             <Link
-              href={`/${locale}/build`}
+              href={`/app/cv`}
               className="bg-[#19181e] text-white text-[0.82rem] font-semibold px-4 py-2.5 rounded-full hover:bg-[#2c2b34] transition-all duration-200 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(25,24,30,.08)]"
             >
               {t('nav.buildMyCV')}
@@ -99,7 +99,7 @@ export default function LandingPage() {
             {/* CTA row */}
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
               <Link
-                href={`/${locale}/build`}
+                href={`/app/cv`}
                 className="group inline-flex items-center justify-center gap-2 bg-[#d4922a] text-white font-bold text-[1rem] px-7 py-4 rounded-full hover:brightness-105 hover:-translate-y-0.5 transition-all duration-200 shadow-[0_8px_24px_rgba(212,146,42,.35)]"
               >
                 {t('hero.ctaPrimary')}

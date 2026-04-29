@@ -40,7 +40,7 @@ Do not include any text outside the JSON object.`
     const userMessage = `Parse this CV:\n\n${text}`
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],

@@ -7,7 +7,7 @@ import Link from "next/link"
 
 interface CVDocument {
   id: string
-  filename: string
+  title: string
   createdAt: string
   version: number
 }
@@ -102,7 +102,7 @@ export default function CVPage() {
         setShowUpload(false)
         setFile(null)
         setText("")
-        router.push(`/scan/${data.cvId}`)
+        router.push(`/app/scan/${data.cvId}`)
       } else {
         const data = await response.json()
         setError(data.error || "Upload failed")
@@ -163,7 +163,7 @@ export default function CVPage() {
                 <div key={cv.id} className="bg-white rounded-lg shadow-sm p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-medium text-gray-900">{cv.filename}</h3>
+                      <h3 className="font-medium text-gray-900">{cv.title}</h3>
                       <p className="text-sm text-gray-500">
                         Version {cv.version} • Uploaded {new Date(cv.createdAt).toLocaleDateString()}
                       </p>

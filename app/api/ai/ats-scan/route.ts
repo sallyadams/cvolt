@@ -30,6 +30,12 @@ export async function POST(req: NextRequest) {
       jobDescription = job?.rawText || ""
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { subscriptionTier: true },
+    })
+    const isPremium = user?.subscriptionTier !== "free"
+
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {
       return NextResponse.json({ error: "AI service unavailable" }, { status: 500 })
@@ -63,7 +69,7 @@ Return ONLY valid JSON:
     const userMessage = `JOB DESCRIPTION:\n${jobDescription}\n\nCANDIDATE CV:\n${cv.rawText}`
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
@@ -113,6 +119,7 @@ Return ONLY valid JSON:
 
     return NextResponse.json({
       scanId: scan.id,
+      is_premium: isPremium,
       ...result,
     })
   } catch (error) {
