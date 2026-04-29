@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import type { ReactNode } from "react";
-import en from "../../messages/en.json";
-import fr from "../../messages/fr.json";
 
 const locales = ["en", "fr"] as const;
 
@@ -13,11 +12,12 @@ type Props = {
 
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
-  const messages = locale === "fr" ? fr : en;
 
   if (!locales.includes(locale as any)) {
     notFound();
   }
+
+  const messages = await getMessages({ locale });
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
