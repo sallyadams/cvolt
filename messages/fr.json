@@ -1,150 +1,156 @@
 {
   "nav": {
-    "brand": "CVolt⚡",
+    "brand": "cvolt",
     "howItWorks": "Comment ça marche",
     "features": "Fonctionnalités",
     "pricing": "Tarifs",
-    "faq": "FAQ",
-    "buildMyCV": "Créer mon CV →"
+    "employers": "Pour les employeurs",
+    "signIn": "Connexion",
+    "getStarted": "Commencer gratuitement"
   },
   "hero": {
-    "eyebrow": "Nouveau lancement · À partir de 1€",
-    "headline": "Votre CV. Optimisé en 60 secondes.",
-    "subtitle": "Collez une description de poste. Notre IA réécrit votre CV pour qu'il corresponde — avec les mots-clés exacts que les recruteurs recherchent. Passez les filtres ATS, décrochez des entretiens. Paiement unique à partir de 1€.",
-    "ctaPrimary": "Créer mon CV — aperçu gratuit",
+    "eyebrow": "Votre moteur de carrière est prêt",
+    "headline": "Trouvez un emploi avec cvolt",
+    "subtitle": "Vos compétences. Les bonnes opportunités. Dans une seule application. Du CV au contrat — en un seul flux.",
+    "ctaPrimary": "Commencer gratuitement →",
     "ctaSecondary": "Voir comment ça marche",
-    "trust1": "Pas d'abonnement",
-    "trust2": "Prend 60 secondes",
-    "trust3": "ATS 85+ garanti"
+    "trust1": "Gratuit pour commencer",
+    "trust2": "Propulsé par l'IA",
+    "trust3": "500+ embauches"
   },
-  "socialProof": {
-    "title": "Construit par les chercheurs d'emploi, pour les chercheurs d'emploi",
-    "stats": {
-      "cvs": "CV optimisés",
-      "ats": "Taux de réussite ATS",
-      "time": "Temps moyen économisé"
-    }
+  "problem": {
+    "eyebrow": "Le Problème",
+    "title": "Trouver un emploi aujourd'hui est difficile",
+    "items": [
+      "Trop de plateformes, pas de clarté",
+      "Les CV génériques sont ignorés",
+      "Pas de guidance sur ce que veulent les employeurs",
+      "Candidatures sans retour"
+    ],
+    "result": "Les talents restent invisibles."
+  },
+  "solution": {
+    "eyebrow": "La Solution",
+    "title": "cvolt change tout",
+    "items": [
+      "Créateur de CV intelligent",
+      "Matching d'emplois par IA",
+      "Candidatures en un clic",
+      "Suivi en temps réel"
+    ],
+    "subtitle": "Tout en UN seul endroit."
   },
   "howItWorks": {
-    "title": "Comment ça marche",
-    "subtitle": "Trois étapes simples pour un CV parfaitement optimisé",
-    "step1": {
-      "title": "Coller la description du poste",
-      "description": "Copiez et collez l'offre d'emploi à laquelle vous souhaitez postuler"
+    "eyebrow": "Comment ça marche",
+    "title": "4 étapes vers votre prochain emploi",
+    "steps": [
+      { "num": "1", "title": "Créez votre profil", "desc": "Construisez un CV solide avec vos compétences, expérience et objectifs." },
+      { "num": "2", "title": "Découvrez des offres", "desc": "Recommandations intelligentes basées sur votre profil." },
+      { "num": "3", "title": "Postulez facilement", "desc": "Postulez en un tap + envoyez des messages personnalisés." },
+      { "num": "4", "title": "Suivez et soyez embauché", "desc": "Suivez vos candidatures et recevez des mises à jour d'entretien." }
+    ]
+  },
+  "whyDifferent": {
+    "eyebrow": "Pourquoi cvolt est différent",
+    "title": "Tout ce dont vous avez besoin pour réussir",
+    "items": [
+      { "title": "Matches personnalisés", "desc": "Pas des emplois au hasard" },
+      { "title": "Rapidité", "desc": "Postulez en secondes" },
+      { "title": "Optimisation IA", "desc": "Votre CV s'améliore automatiquement" },
+      { "title": "Suivi des candidatures", "desc": "Dashboard qui vous tient informé" },
+      { "title": "Connexion directe employeur", "desc": "Soyez remarqué par les bonnes entreprises" }
+    ]
+  },
+  "journey": {
+    "eyebrow": "Parcours utilisateur réel",
+    "title": "Moins d'effort. De meilleurs résultats.",
+    "before": {
+      "label": "Avant cvolt",
+      "desc": "Envoyer 50 CV → Pas de réponses"
     },
-    "step2": {
-      "title": "Optimisation IA",
-      "description": "Notre IA analyse le poste et réécrit votre CV avec les mots-clés correspondants"
-    },
-    "step3": {
-      "title": "Télécharger PDF",
-      "description": "Obtenez votre CV optimisé ATS prêt à être soumis"
+    "after": {
+      "label": "Après cvolt",
+      "steps": ["CV optimisé", "10 candidatures ciblées", "3 entretiens", "1 offre d'emploi"]
     }
   },
-  "features": {
-    "title": "Pourquoi CVolt ?",
-    "subtitle": "Tout ce dont vous avez besoin pour décrocher le job de vos rêves",
-    "ats": {
-      "title": "Optimisation ATS",
-      "description": "Taux de réussite de 85%+ garanti. Nous utilisons les mêmes mots-clés que les recruteurs recherchent."
-    },
-    "ai": {
-      "title": "Alimenté par IA",
-      "description": "IA avancée qui comprend les exigences du poste et adapte parfaitement votre CV."
-    },
-    "speed": {
-      "title": "Ultra rapide",
-      "description": "Optimisation complète du CV en moins de 60 secondes. Pas d'attente."
-    },
-    "privacy": {
-      "title": "Confidentialité d'abord",
-      "description": "Vos données restent privées. Nous ne stockons pas votre CV ou vos informations personnelles."
-    }
+  "users": {
+    "eyebrow": "Utilisateurs cibles",
+    "title": "Conçu pour chaque étape de carrière",
+    "personas": [
+      { "title": "Étudiants & Diplômés", "desc": "Démarrez votre carrière avec confiance" },
+      { "title": "Reconversion professionnelle", "desc": "Changez de carrière avec les bonnes opportunités" },
+      { "title": "Professionnels", "desc": "Faites évoluer votre carrière" },
+      { "title": "Freelances", "desc": "Trouvez la stabilité et augmentez vos revenus" }
+    ]
   },
   "pricing": {
-    "title": "Tarifs simples",
-    "subtitle": "Paiement unique, accès à vie",
-    "price": "4,99€",
-    "description": "Une optimisation de CV",
-    "features": [
-      "Optimisation alimentée par IA",
-      "Garantie ATS 85%+",
-      "Téléchargement PDF",
-      "Accès à vie"
-    ],
-    "cta": "Commencer"
-  },
-  "faq": {
-    "title": "Questions fréquemment posées",
-    "questions": {
-      "what": {
-        "q": "Qu'est-ce que l'optimisation CV ?",
-        "a": "L'optimisation CV signifie adapter votre CV aux exigences spécifiques d'un poste, en utilisant les mots-clés et phrases exacts que les employeurs recherchent."
+    "eyebrow": "Tarifs",
+    "title": "Commencez gratuitement, évoluez avec nous",
+    "subtitle": "Pas de frais cachés. Annulez à tout moment.",
+    "plans": [
+      {
+        "name": "Gratuit",
+        "price": "€0",
+        "period": "pour toujours",
+        "desc": "Parfait pour commencer",
+        "features": ["1 CV uploadé", "1 scan ATS", "Matching basique", "Suivi des candidatures"],
+        "cta": "Commencer",
+        "highlighted": false
       },
-      "ats": {
-        "q": "Qu'est-ce que l'ATS ?",
-        "a": "L'ATS (Système de suivi des candidats) est un logiciel que de nombreuses entreprises utilisent pour filtrer les CV avant qu'ils n'atteignent les recruteurs humains. Notre optimisation garantit que votre CV passe ces filtres."
+      {
+        "name": "Pro",
+        "price": "€9",
+        "period": "par mois",
+        "desc": "Pour les chercheurs d'emploi sérieux",
+        "features": ["CV illimités", "Scans ATS illimités", "Optimisation IA", "Matching intelligent", "Préparation entretien", "Générateur de lettre", "Optimiseur LinkedIn", "Support prioritaire"],
+        "cta": "Passer Pro",
+        "highlighted": true
       },
-      "guarantee": {
-        "q": "Le taux de réussite ATS de 85% est-il vraiment garanti ?",
-        "a": "Oui ! Si votre CV optimisé ne passe pas les filtres ATS, nous vous remboursons. Nous nous portons garants de notre technologie IA."
-      },
-      "privacy": {
-        "q": "Mes données sont-elles en sécurité ?",
-        "a": "Absolument. Nous ne stockons pas votre CV, vos informations personnelles ou les descriptions de poste. Tout est traité en temps réel et immédiatement supprimé."
+      {
+        "name": "Premium",
+        "price": "€19",
+        "period": "par mois",
+        "desc": "Pour des résultats maximaux",
+        "features": ["Tout dans Pro", "Coaching carrière 1-1", "Accès direct recruteurs", "Guide négociation salariale", "Connexion employeurs B2B"],
+        "cta": "Passer Premium",
+        "highlighted": false
       }
-    }
+    ]
+  },
+  "vision": {
+    "eyebrow": "Notre Vision",
+    "title": "cvolt n'est pas juste une app emploi. C'est un moteur de carrière.",
+    "points": ["De la recherche d'emploi", "À la croissance de carrière", "À la stabilité des revenus"],
+    "quote": "Nous ne vous aidons pas juste à postuler — nous vous aidons à gagner."
+  },
+  "cta": {
+    "title": "Téléchargez cvolt aujourd'hui",
+    "subtitle": "Votre prochain emploi est à portée de tap.",
+    "points": ["Construisez votre CV", "Postulez plus intelligemment", "Soyez embauché plus vite"],
+    "button": "Commencer gratuitement",
+    "employers": "Vous êtes employeur ? Contactez-nous"
   },
   "footer": {
-    "copyright": "© 2024 CVolt. Tous droits réservés.",
+    "tagline": "Votre Carrière. Votre Avenir. Notre Mission.",
+    "copyright": "© 2025 CVolt. Tous droits réservés.",
     "links": {
       "privacy": "Politique de confidentialité",
       "terms": "Conditions d'utilisation",
-      "contact": "Contact"
+      "contact": "Contact",
+      "employers": "Pour les employeurs"
     }
-  },
-  "build": {
-    "title": "Créer votre CV",
-    "subtitle": "Optimisez votre CV pour le job parfait",
-    "form": {
-      "name": "Nom complet",
-      "namePlaceholder": "Entrez votre nom complet",
-      "jobTitle": "Titre du poste",
-      "jobTitlePlaceholder": "ex. : Développeur logiciel",
-      "jobDescription": "Description du poste",
-      "jobDescriptionPlaceholder": "Collez la description du poste ici...",
-      "generate": "Générer mon CV",
-      "generating": "Génération en cours...",
-      "error": "Erreur lors de la génération du CV. Veuillez réessayer."
-    },
-    "payment": {
-      "downloadTitle": "Télécharger PDF",
-      "downloadButton": "Télécharger PDF — 4,99€",
-      "paying": "Traitement du paiement...",
-      "success": "Paiement réussi ! PDF débloqué.",
-      "cancelled": "Paiement annulé.",
-      "error": "Échec de vérification du paiement. Veuillez réessayer.",
-      "loading": "Chargement du PDF..."
-    },
-    "preview": {
-      "title": "Aperçu du CV",
-      "generating": "Génération de votre CV optimisé..."
-    }
-  },
-  "common": {
-    "loading": "Chargement...",
-    "error": "Une erreur s'est produite",
-    "retry": "Réessayer",
-    "back": "Retour",
-    "next": "Suivant",
-    "cancel": "Annuler",
-    "confirm": "Confirmer",
-    "yes": "Oui",
-    "no": "Non"
   },
   "language": {
     "switch": "Langue",
     "english": "English",
     "french": "Français"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "retry": "Réessayer",
+    "back": "Retour",
+    "next": "Suivant",
+    "cancel": "Annuler"
   }
 }

@@ -1,135 +1,149 @@
 {
   "nav": {
-    "brand": "CVolt⚡",
+    "brand": "cvolt",
     "howItWorks": "How it works",
     "features": "Features",
     "pricing": "Pricing",
-    "faq": "FAQ",
-    "buildMyCV": "Build my CV →"
+    "employers": "For Employers",
+    "signIn": "Sign in",
+    "getStarted": "Get Started Free"
   },
   "hero": {
-    "eyebrow": "Now launching · From €1",
-    "headline": "Your CV. Optimised in 60 seconds.",
-    "subtitle": "Paste a job description. Our AI rewrites your CV to match it — with the exact keywords recruiters search for. Pass ATS filters, land interviews. One-time payment from €1.",
-    "ctaPrimary": "Build my CV — free preview",
+    "eyebrow": "Your career engine is ready",
+    "headline": "Get Hired with cvolt",
+    "subtitle": "Your skills. The right opportunities. All in one app. From CV to Contract — in one flow.",
+    "ctaPrimary": "Start for free →",
     "ctaSecondary": "See how it works",
-    "trust1": "No subscription",
-    "trust2": "Takes 60 seconds",
-    "trust3": "ATS 85+ guaranteed"
+    "trust1": "Free to start",
+    "trust2": "AI-powered",
+    "trust3": "500+ hired"
   },
-  "socialProof": {
-    "title": "Built by job-seekers, for job-seekers",
-    "stats": {
-      "cvs": "CVs optimised",
-      "ats": "ATS pass rate",
-      "time": "Average time saved"
-    }
+  "problem": {
+    "eyebrow": "The Problem",
+    "title": "Finding a job today is broken",
+    "items": [
+      "Too many platforms, no clarity",
+      "Generic CVs get ignored",
+      "No real guidance on what employers want",
+      "Applications = no feedback"
+    ],
+    "result": "Talented people stay unseen."
+  },
+  "solution": {
+    "eyebrow": "The Solution",
+    "title": "cvolt changes everything",
+    "items": [
+      "Smart CV builder",
+      "AI-powered job matching",
+      "One-click applications",
+      "Real-time tracking"
+    ],
+    "subtitle": "Everything in ONE place."
   },
   "howItWorks": {
-    "title": "How it works",
-    "subtitle": "Three simple steps to a perfectly optimised CV",
-    "step1": {
-      "title": "Paste job description",
-      "description": "Copy and paste the job posting you want to apply for"
+    "eyebrow": "How It Works",
+    "title": "4 steps to your next job",
+    "steps": [
+      { "num": "1", "title": "Create Your Profile", "desc": "Build a strong CV with your skills, experience and goals." },
+      { "num": "2", "title": "Discover Jobs", "desc": "Smart recommendations based on your profile." },
+      { "num": "3", "title": "Apply Easily", "desc": "Apply in one tap + send personalised messages." },
+      { "num": "4", "title": "Track & Get Hired", "desc": "Follow your applications and get interview updates." }
+    ]
+  },
+  "whyDifferent": {
+    "eyebrow": "Why cvolt is Different",
+    "title": "Everything you need to win",
+    "items": [
+      { "title": "Personalised Matches", "desc": "Not random jobs" },
+      { "title": "Speed", "desc": "Apply in seconds" },
+      { "title": "AI Optimisation", "desc": "Your CV improves automatically" },
+      { "title": "Application Tracking", "desc": "Dashboard that keeps you updated" },
+      { "title": "Direct Employer Connection", "desc": "Get noticed by the right companies" }
+    ]
+  },
+  "journey": {
+    "eyebrow": "Real User Journey",
+    "title": "Less effort. Better results.",
+    "before": {
+      "label": "Before cvolt",
+      "desc": "Sending 50 CVs → No replies"
     },
-    "step2": {
-      "title": "AI optimisation",
-      "description": "Our AI analyses the job and rewrites your CV with matching keywords"
-    },
-    "step3": {
-      "title": "Download PDF",
-      "description": "Get your ATS-optimised CV ready to submit"
+    "after": {
+      "label": "After cvolt",
+      "steps": ["Optimised CV", "10 Targeted Applications", "3 Interviews", "1 Job Offer"]
     }
   },
-  "features": {
-    "title": "Why CVolt?",
-    "subtitle": "Everything you need to land your dream job",
-    "ats": {
-      "title": "ATS Optimisation",
-      "description": "85%+ pass rate guaranteed. We use the same keywords recruiters search for."
-    },
-    "ai": {
-      "title": "AI-Powered",
-      "description": "Advanced AI that understands job requirements and tailors your CV perfectly."
-    },
-    "speed": {
-      "title": "Lightning Fast",
-      "description": "Complete CV optimisation in under 60 seconds. No waiting around."
-    },
-    "privacy": {
-      "title": "Privacy First",
-      "description": "Your data stays private. We don't store your CV or personal information."
-    }
+  "users": {
+    "eyebrow": "Target Users",
+    "title": "Built for every career stage",
+    "personas": [
+      { "title": "Students & Graduates", "desc": "Start your career with confidence" },
+      { "title": "Career Switchers", "desc": "Switch with the right opportunities" },
+      { "title": "Professionals", "desc": "Level up your career" },
+      { "title": "Freelancers", "desc": "Find stability and grow your income" }
+    ]
   },
   "pricing": {
-    "title": "Simple pricing",
-    "subtitle": "One-time payment, lifetime access",
-    "price": "€4.99",
-    "description": "One CV optimisation",
-    "features": [
-      "AI-powered optimisation",
-      "ATS 85%+ guarantee",
-      "PDF download",
-      "Lifetime access"
-    ],
-    "cta": "Get started"
-  },
-  "faq": {
-    "title": "Frequently asked questions",
-    "questions": {
-      "what": {
-        "q": "What is CV optimisation?",
-        "a": "CV optimisation means tailoring your CV to match specific job requirements, using the exact keywords and phrases employers are looking for."
+    "eyebrow": "Pricing",
+    "title": "Start free, grow with us",
+    "subtitle": "No hidden fees. Cancel anytime.",
+    "plans": [
+      {
+        "name": "Free",
+        "price": "€0",
+        "period": "forever",
+        "desc": "Perfect to get started",
+        "features": ["1 CV upload", "1 ATS scan", "Basic job matching", "Application tracker"],
+        "cta": "Start free",
+        "highlighted": false
       },
-      "ats": {
-        "q": "What is ATS?",
-        "a": "ATS (Applicant Tracking System) is software that many companies use to filter CVs before they reach human recruiters. Our optimisation ensures your CV passes these filters."
+      {
+        "name": "Pro",
+        "price": "€9",
+        "period": "per month",
+        "desc": "For serious job seekers",
+        "features": ["Unlimited CV uploads", "Unlimited ATS scans", "AI CV optimisation", "Smart job matching", "Interview prep", "Cover letter generator", "LinkedIn optimizer", "Priority support"],
+        "cta": "Start Pro",
+        "highlighted": true
       },
-      "guarantee": {
-        "q": "Is the 85% ATS pass rate really guaranteed?",
-        "a": "Yes! If your optimised CV doesn't pass ATS filters, we'll refund your payment. We stand behind our AI technology."
-      },
-      "privacy": {
-        "q": "Is my data safe?",
-        "a": "Absolutely. We don't store your CV, personal information, or job descriptions. Everything is processed in real-time and immediately discarded."
+      {
+        "name": "Premium",
+        "price": "€19",
+        "period": "per month",
+        "desc": "For maximum results",
+        "features": ["Everything in Pro", "1-on-1 career coaching", "Recruiter direct access", "Salary negotiation guide", "B2B employer connection"],
+        "cta": "Go Premium",
+        "highlighted": false
       }
-    }
+    ]
+  },
+  "vision": {
+    "eyebrow": "Our Vision",
+    "title": "cvolt is not just a job app. It's a career engine.",
+    "points": ["From job search", "To career growth", "To income stability"],
+    "quote": "We don't just help you apply — we help you win."
+  },
+  "cta": {
+    "title": "Download cvolt today",
+    "subtitle": "Your next job is one tap away.",
+    "points": ["Build your CV", "Apply smarter", "Get hired faster"],
+    "button": "Get Started Free",
+    "employers": "Are you an employer? Contact us"
   },
   "footer": {
-    "copyright": "© 2024 CVolt. All rights reserved.",
+    "tagline": "Your Career. Your Future. Our Mission.",
+    "copyright": "© 2025 CVolt. All rights reserved.",
     "links": {
       "privacy": "Privacy Policy",
       "terms": "Terms of Service",
-      "contact": "Contact"
+      "contact": "Contact",
+      "employers": "For Employers"
     }
   },
-  "build": {
-    "title": "Build your CV",
-    "subtitle": "Optimise your CV for the perfect job",
-    "form": {
-      "name": "Full name",
-      "namePlaceholder": "Enter your full name",
-      "jobTitle": "Job title",
-      "jobTitlePlaceholder": "e.g. Software Engineer",
-      "jobDescription": "Job description",
-      "jobDescriptionPlaceholder": "Paste the job description here...",
-      "generate": "Generate my CV",
-      "generating": "Generating...",
-      "error": "Error generating CV. Please try again."
-    },
-    "payment": {
-      "downloadTitle": "Download PDF",
-      "downloadButton": "Download PDF — €4.99",
-      "paying": "Processing payment...",
-      "success": "Payment successful! PDF unlocked.",
-      "cancelled": "Payment cancelled.",
-      "error": "Payment verification failed. Please try again.",
-      "loading": "Loading PDF..."
-    },
-    "preview": {
-      "title": "CV Preview",
-      "generating": "Generating your optimised CV..."
-    }
+  "language": {
+    "switch": "Language",
+    "english": "English",
+    "french": "Français"
   },
   "common": {
     "loading": "Loading...",
@@ -137,14 +151,6 @@
     "retry": "Try again",
     "back": "Back",
     "next": "Next",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "yes": "Yes",
-    "no": "No"
-  },
-  "language": {
-    "switch": "Language",
-    "english": "English",
-    "french": "Français"
+    "cancel": "Cancel"
   }
 }

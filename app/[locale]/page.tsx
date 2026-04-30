@@ -1,226 +1,325 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
+// ─── Design tokens ───────────────────────────────────────────────────────────
+const navy = "#0a0e27";
+const purple = "#7c5cfc";
+const purpleHover = "#6a4be0";
+const purpleLight = "#f0edff";
+const white = "#ffffff";
+const gray50 = "#f8f9fe";
+const gray600 = "#64748b";
+const gray900 = "#0f172a";
+
+// ─── Phone Mockup ─────────────────────────────────────────────────────────────
+function PhoneMockup() {
+  return (
+    <div style={{
+      width: 260, height: 520, background: "#1a1f45",
+      borderRadius: 36, border: "8px solid #2a3060",
+      boxShadow: "0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)",
+      position: "relative", overflow: "hidden", flexShrink: 0,
+    }}>
+      {/* Status bar */}
+      <div style={{ height: 28, background: "#12183a", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", fontSize: 10, color: "rgba(255,255,255,0.6)" }}>
+        <span>9:41</span>
+        <span>●●●</span>
+      </div>
+
+      {/* App content */}
+      <div style={{ padding: "12px 14px", background: "#f8f9fe", height: "calc(100% - 28px)", overflowY: "hidden" }}>
+        {/* Header */}
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 11, color: gray600 }}>Hello, Alex 👋</div>
+          <div style={{ fontSize: 9, color: gray600 }}>Great to see you back!</div>
+        </div>
+
+        {/* Search */}
+        <div style={{ background: white, borderRadius: 8, padding: "7px 10px", fontSize: 9, color: "#aaa", marginBottom: 10, border: "1px solid #eee" }}>
+          Search jobs, roles or companies
+        </div>
+
+        {/* Recommended */}
+        <div style={{ fontSize: 10, fontWeight: 700, color: gray900, marginBottom: 6 }}>Recommended Jobs</div>
+
+        {[
+          { role: "UI/UX Designer", co: "Innovate Studio", loc: "Lagos, Nigeria", time: "Full-time" },
+          { role: "Product Designer", co: "TechNova", loc: "Lagos, Nigeria", time: "Full-time" },
+        ].map((j, i) => (
+          <div key={i} style={{ background: white, borderRadius: 8, padding: "8px 10px", marginBottom: 6, border: "1px solid #eee" }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: gray900 }}>{j.role}</div>
+            <div style={{ fontSize: 8, color: gray600 }}>{j.co}</div>
+            <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+              <span style={{ fontSize: 7, color: gray600 }}>📍 {j.loc}</span>
+              <span style={{ fontSize: 7, color: gray600 }}>⏰ {j.time}</span>
+            </div>
+          </div>
+        ))}
+
+        {/* Profile strength */}
+        <div style={{ background: purple, borderRadius: 10, padding: "10px 12px", marginTop: 8 }}>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.8)", marginBottom: 4 }}>Profile Strength</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: white }}>85%</div>
+            <div style={{ fontSize: 8, color: "rgba(255,255,255,0.8)" }}>Great job! Keep it up.</div>
+          </div>
+          <div style={{ height: 4, background: "rgba(255,255,255,0.25)", borderRadius: 2, marginTop: 6 }}>
+            <div style={{ width: "85%", height: "100%", background: white, borderRadius: 2 }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom nav */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        background: white, borderTop: "1px solid #eee",
+        display: "flex", justifyContent: "space-around", padding: "8px 0",
+      }}>
+        {["🏠", "🔍", "📄", "📊", "👤"].map((icon, i) => (
+          <span key={i} style={{ fontSize: 14, opacity: i === 0 ? 1 : 0.4 }}>{icon}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Section wrapper ──────────────────────────────────────────────────────────
+function Section({ bg, children, id }: { bg?: string; children: React.ReactNode; id?: string }) {
+  return (
+    <section id={id} style={{ background: bg || white, padding: "80px 24px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function Eyebrow({ label, light }: { label: string; light?: boolean }) {
+  return (
+    <div style={{
+      display: "inline-flex", alignItems: "center", gap: 8,
+      background: light ? "rgba(124,92,252,0.15)" : purpleLight,
+      color: light ? "rgba(255,255,255,0.9)" : purple,
+      padding: "6px 14px", borderRadius: 50,
+      fontSize: 12, fontWeight: 700, letterSpacing: "0.05em",
+      textTransform: "uppercase", marginBottom: 16,
+    }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: light ? "rgba(255,255,255,0.7)" : purple, flexShrink: 0 }} />
+      {label}
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   const t = useTranslations();
   const locale = useLocale();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <main className="relative bg-[#f8f6f1] text-[#19181e] overflow-x-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <main style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflowX: "hidden" }}>
 
-      {/* ─── Noise texture overlay (fixed, decorative) ─── */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.04] mix-blend-multiply"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* ═══════════════════════════════════════════════════
-          NAV
-      ═══════════════════════════════════════════════════ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-[rgba(248,246,241,0.85)] backdrop-blur-xl border-b border-[#e3dfd8]'
-          : 'bg-transparent'
-      }`}>
-        <div className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
-          <Link href={`/${locale}`} className="flex items-center gap-0.5 text-[1.35rem] font-bold tracking-[-0.03em]" style={{ fontFamily: "'Fraunces', serif" }}>
-            {t('nav.brand')}
+      {/* ═══ NAV ══════════════════════════════════════════════════════════════ */}
+      <nav style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+        background: scrolled ? "rgba(10,14,39,0.96)" : navy,
+        backdropFilter: scrolled ? "blur(16px)" : "none",
+        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.08)" : "none",
+        transition: "all 0.3s",
+      }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          {/* Logo */}
+          <Link href={`/${locale}`} style={{ fontSize: 22, fontWeight: 800, color: white, textDecoration: "none", letterSpacing: "-0.03em" }}>
+            c<span style={{ color: purple }}>volt</span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#how" className="text-[0.88rem] font-medium text-[#6b6779] hover:text-[#19181e] transition-colors">{t('nav.howItWorks')}</a>
-            <a href="#features" className="text-[0.88rem] font-medium text-[#6b6779] hover:text-[#19181e] transition-colors">{t('nav.features')}</a>
-            <a href="#pricing" className="text-[0.88rem] font-medium text-[#6b6779] hover:text-[#19181e] transition-colors">{t('nav.pricing')}</a>
-            <a href="#faq" className="text-[0.88rem] font-medium text-[#6b6779] hover:text-[#19181e] transition-colors">{t('nav.faq')}</a>
+          {/* Links */}
+          <div className="hidden md:flex" style={{ gap: 32, alignItems: "center" }}>
+            {[
+              { label: t("nav.howItWorks"), href: "#how-it-works" },
+              { label: t("nav.features"), href: "#why-different" },
+              { label: t("nav.pricing"), href: "#pricing" },
+              { label: t("nav.employers"), href: "#employers" },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none", transition: "color 0.2s" }}
+                onMouseOver={e => (e.currentTarget.style.color = white)}
+                onMouseOut={e => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}>
+                {label}
+              </a>
+            ))}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <LanguageSwitcher />
-            <Link
-              href={`/app/cv`}
-              className="bg-[#19181e] text-white text-[0.82rem] font-semibold px-4 py-2.5 rounded-full hover:bg-[#2c2b34] transition-all duration-200 hover:-translate-y-0.5 shadow-[0_1px_3px_rgba(25,24,30,.08)]"
-            >
-              {t('nav.buildMyCV')}
+            <Link href="/login" style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
+              {t("nav.signIn")}
+            </Link>
+            <Link href="/app/cv" style={{
+              background: purple, color: white, fontSize: 14, fontWeight: 600,
+              padding: "10px 22px", borderRadius: 50, textDecoration: "none",
+              boxShadow: "0 4px 14px rgba(124,92,252,0.4)", transition: "all 0.2s",
+            }}
+              onMouseOver={e => { (e.currentTarget as HTMLElement).style.background = purpleHover; (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
+              onMouseOut={e => { (e.currentTarget as HTMLElement).style.background = purple; (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; }}>
+              {t("nav.getStarted")}
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ═══════════════════════════════════════════════════
-          HERO
-      ═══════════════════════════════════════════════════ */}
-      <section className="relative pt-32 md:pt-40 pb-20 md:pb-32 px-5 md:px-8">
+      {/* ═══ HERO ═════════════════════════════════════════════════════════════ */}
+      <section style={{
+        background: `linear-gradient(135deg, ${navy} 0%, #1a1f45 60%, #0d1235 100%)`,
+        padding: "140px 24px 100px", minHeight: "100vh", display: "flex", alignItems: "center",
+        position: "relative", overflow: "hidden",
+      }}>
+        {/* Glow orbs */}
+        <div style={{ position: "absolute", top: "20%", right: "5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,92,252,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "10%", left: "-5%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,92,252,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-        {/* Decorative blur orb */}
-        <div aria-hidden className="absolute top-32 right-[-10%] w-[500px] h-[500px] rounded-full opacity-40 blur-3xl"
-          style={{ background: 'radial-gradient(circle, #fef3dc 0%, transparent 70%)' }}
-        />
-        <div aria-hidden className="absolute bottom-20 left-[-15%] w-[400px] h-[400px] rounded-full opacity-30 blur-3xl"
-          style={{ background: 'radial-gradient(circle, #d5f5e8 0%, transparent 70%)' }}
-        />
-
-        <div className="relative max-w-6xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
+        <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gap: 60, alignItems: "center" }} className="grid-cols-1 lg:grid-cols-2 grid">
 
           {/* Left — copy */}
-          <div className="relative z-10">
-            {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2 bg-white border border-[#e3dfd8] px-3 py-1.5 rounded-full mb-7 shadow-[0_1px_3px_rgba(25,24,30,.04)]">
-              <span className="w-1.5 h-1.5 bg-[#1f8a5e] rounded-full animate-pulse" />
-              <span className="text-[0.72rem] font-semibold tracking-wide text-[#2c2b34]">{t('hero.eyebrow')}</span>
-            </div>
+          <div>
+            <Eyebrow label={t("hero.eyebrow")} light />
 
-            {/* Headline */}
-            <h1 className="text-[2.75rem] sm:text-[3.5rem] lg:text-[4.5rem] font-bold leading-[0.95] tracking-[-0.04em] text-[#19181e] mb-6" style={{ fontFamily: "'Fraunces', serif" }}>
-              {t('hero.headline').split(' ').slice(0, 2).join(' ')}{' '}
-              <em className="italic font-semibold text-[#d4922a]">{t('hero.headline').split(' ')[2]}</em>
-              <br />
-              {t('hero.headline').split(' ').slice(3).join(' ')}
+            <h1 style={{
+              fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: white,
+              lineHeight: 1.1, letterSpacing: "-0.04em", marginBottom: 24, marginTop: 0,
+            }}>
+              Get Hired with{" "}
+              <span style={{ color: purple }}>cvolt</span>
             </h1>
 
-            {/* Sub */}
-            <p className="text-[1.05rem] md:text-[1.18rem] text-[#6b6779] leading-[1.55] mb-9 max-w-[540px]">
-              {t('hero.subtitle')}
+            <p style={{ fontSize: 18, color: "rgba(255,255,255,0.65)", lineHeight: 1.7, marginBottom: 36, maxWidth: 500, marginTop: 0 }}>
+              {t("hero.subtitle")}
             </p>
 
-            {/* CTA row */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-8">
-              <Link
-                href={`/app/cv`}
-                className="group inline-flex items-center justify-center gap-2 bg-[#d4922a] text-white font-bold text-[1rem] px-7 py-4 rounded-full hover:brightness-105 hover:-translate-y-0.5 transition-all duration-200 shadow-[0_8px_24px_rgba(212,146,42,.35)]"
-              >
-                {t('hero.ctaPrimary')}
-                <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 48 }}>
+              <Link href="/app/cv" style={{
+                background: purple, color: white, fontWeight: 700, fontSize: 16,
+                padding: "14px 32px", borderRadius: 50, textDecoration: "none",
+                boxShadow: "0 8px 24px rgba(124,92,252,0.4)", display: "inline-flex", alignItems: "center", gap: 8,
+                transition: "all 0.2s",
+              }}>
+                {t("hero.ctaPrimary")}
               </Link>
-              <a
-                href="#how"
-                className="inline-flex items-center justify-center gap-2 bg-white border border-[#e3dfd8] text-[#19181e] font-semibold text-[1rem] px-6 py-4 rounded-full hover:border-[#d4cfc6] transition-all duration-200"
-              >
-                {t('hero.ctaSecondary')}
+              <a href="#how-it-works" style={{
+                background: "rgba(255,255,255,0.08)", color: white, fontWeight: 600, fontSize: 16,
+                padding: "14px 32px", borderRadius: 50, textDecoration: "none",
+                border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(8px)",
+                display: "inline-flex", alignItems: "center", gap: 8,
+              }}>
+                {t("hero.ctaSecondary")}
               </a>
             </div>
 
             {/* Trust bar */}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-[0.8rem] text-[#6b6779]">
-              <span className="flex items-center gap-1.5">
-                <span className="text-[#1f8a5e]">✓</span> {t('hero.trust1')}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="text-[#1f8a5e]">✓</span> {t('hero.trust2')}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="text-[#1f8a5e]">✓</span> {t('hero.trust3')}
-              </span>
-            </div>
-          </div>
-
-          {/* Right — hero visual (CV card mockup) */}
-          <div className="relative z-10">
-            <HeroCVMockup />
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════
-          SOCIAL PROOF STRIP
-      ═══════════════════════════════════════════════════ */}
-      <section className="relative py-10 border-y border-[#e3dfd8] bg-white/40">
-        <div className="max-w-6xl mx-auto px-5 md:px-8">
-          <p className="text-center text-[0.68rem] font-bold tracking-[0.15em] uppercase text-[#a09cb2] mb-5">
-            {t('socialProof.title')}
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-x-10 gap-y-4">
-            {[
-              { k: '1,247', v: t('socialProof.stats.cvs') },
-              { k: '87%', v: 'pass ATS first try' },
-              { k: '3.2×', v: 'more interviews' },
-              { k: '4.8★', v: 'avg rating' },
-              { k: '15', v: 'countries' },
-            ].map(stat => (
-              <div key={stat.v} className="flex items-baseline gap-2">
-                <span className="text-[1.3rem] font-bold text-[#19181e]" style={{ fontFamily: "'Fraunces', serif" }}>
-                  {stat.k}
+            <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+              {[t("hero.trust1"), t("hero.trust2"), t("hero.trust3")].map((item) => (
+                <span key={item} style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.6)", fontSize: 13, fontWeight: 500 }}>
+                  <span style={{ color: "#4ade80", fontSize: 16 }}>✓</span> {item}
                 </span>
-                <span className="text-[0.78rem] text-[#6b6779]">{stat.v}</span>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          {/* Right — phone mockup */}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <PhoneMockup />
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════
-          HOW IT WORKS — 3 steps
-      ═══════════════════════════════════════════════════ */}
-      <section id="how" className="relative py-20 md:py-28 px-5 md:px-8 bg-white border-y border-[#e3dfd8]">
-        <div className="max-w-6xl mx-auto">
-
-          <div className="max-w-2xl mb-16">
-            <div className="text-[0.68rem] font-bold tracking-[0.15em] uppercase text-[#d4922a] mb-4">
-              {t('howItWorks.title')}
+      {/* ═══ PROBLEM ══════════════════════════════════════════════════════════ */}
+      <Section bg={gray50} id="problem">
+        <div style={{ display: "grid", gap: 48, alignItems: "center" }} className="grid grid-cols-1 lg:grid-cols-2">
+          <div>
+            <Eyebrow label={t("problem.eyebrow")} />
+            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: gray900, lineHeight: 1.2, margin: "0 0 32px" }}>
+              {t("problem.title")}
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {(t.raw("problem.items") as string[]).map((item: string, i: number) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, background: white, padding: "14px 18px", borderRadius: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", border: "1px solid #f0f0f0" }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 6, background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, flexShrink: 0 }}>✕</div>
+                  <span style={{ fontSize: 15, color: gray900, fontWeight: 500 }}>{item}</span>
+                </div>
+              ))}
             </div>
-            <h2 className="text-[2rem] md:text-[2.75rem] font-bold leading-[1.05] tracking-[-0.03em] text-[#19181e]" style={{ fontFamily: "'Fraunces', serif" }}>
-              {t('howItWorks.subtitle')}
+            <div style={{ marginTop: 24, padding: "14px 20px", background: "#fff3cd", borderRadius: 12, border: "1px solid #ffd700", fontSize: 15, fontWeight: 600, color: "#92400e" }}>
+              Result: {t("problem.result")}
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ width: 280, height: 280, background: `linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)`, borderRadius: 32, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 100 }}>
+              😞
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ SOLUTION ═════════════════════════════════════════════════════════ */}
+      <Section bg={white} id="solution">
+        <div style={{ display: "grid", gap: 48, alignItems: "center" }} className="grid grid-cols-1 lg:grid-cols-2">
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ width: 280, height: 280, background: `linear-gradient(135deg, ${purpleLight} 0%, #ddd6fe 100%)`, borderRadius: 32, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <span style={{ fontSize: 72, fontWeight: 900, color: purple }}>c<span style={{ color: navy }}>v</span></span>
+              <div style={{ fontSize: 13, color: gray600, fontWeight: 600 }}>Your Career. Our Mission.</div>
+            </div>
+          </div>
+          <div>
+            <Eyebrow label={t("solution.eyebrow")} />
+            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: gray900, lineHeight: 1.2, margin: "0 0 32px" }}>
+              {t("solution.title")}
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {(t.raw("solution.items") as string[]).map((item: string, i: number) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderRadius: 12, background: purpleLight, border: `1px solid #ddd6fe` }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: purple, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: white, flexShrink: 0 }}>
+                    {["📄", "🎯", "⚡", "📊"][i]}
+                  </div>
+                  <span style={{ fontSize: 15, color: gray900, fontWeight: 600 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 24, fontSize: 18, fontWeight: 700, color: purple }}>
+              {t("solution.subtitle")}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ HOW IT WORKS ═════════════════════════════════════════════════════ */}
+      <section id="how-it-works" style={{ background: navy, padding: "80px 24px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 60 }}>
+            <Eyebrow label={t("howItWorks.eyebrow")} light />
+            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: white, margin: "0 0 16px" }}>
+              {t("howItWorks.title")}
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {[
-              {
-                n: '01',
-                title: t('howItWorks.step1.title'),
-                desc: t('howItWorks.step1.description'),
-                icon: '✍️',
-              },
-              {
-                n: '02',
-                title: t('howItWorks.step2.title'),
-                desc: t('howItWorks.step2.description'),
-                icon: '🎯',
-              },
-              {
-                n: '03',
-                title: t('howItWorks.step3.title'),
-                desc: t('howItWorks.step3.description'),
-                icon: '⬇️',
-              },
-            ].map((step, i) => (
-              <div key={step.n} className="relative group">
-                {/* Card */}
-                <div className="bg-[#f8f6f1] border border-[#e3dfd8] rounded-[18px] p-7 h-full transition-all duration-300 hover:border-[#d4922a] hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(25,24,30,.08)]">
-                  <div className="flex items-start justify-between mb-5">
-                    <div className="text-[0.72rem] font-bold tracking-[0.1em] text-[#a09cb2]">
-                      {step.n}
-                    </div>
-                    <div className="text-[1.75rem] opacity-80 group-hover:scale-110 transition-transform duration-300">
-                      {step.icon}
-                    </div>
-                  </div>
-                  <h3 className="text-[1.35rem] font-bold tracking-[-0.02em] text-[#19181e] mb-2.5 leading-[1.15]" style={{ fontFamily: "'Fraunces', serif" }}>
-                    {step.title}
-                  </h3>
-                  <p className="text-[0.92rem] text-[#6b6779] leading-[1.6]">
-                    {step.desc}
-                  </p>
+          <div style={{ display: "grid", gap: 24 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {(t.raw("howItWorks.steps") as Array<{ num: string; title: string; desc: string }>).map((step, i) => (
+              <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 20, padding: "28px 24px", border: "1px solid rgba(255,255,255,0.1)", position: "relative", overflow: "hidden" }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: purple, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 900, color: white, marginBottom: 16 }}>
+                  {step.num}
                 </div>
-
-                {/* Connector arrow (desktop only) */}
-                {i < 2 && (
-                  <div aria-hidden className="hidden md:block absolute top-1/2 -right-5 w-10 h-[1px] bg-[#e3dfd8] z-0">
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[#d4cfc6] text-sm">→</div>
-                  </div>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: white, margin: "0 0 10px" }}>{step.title}</h3>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.6, margin: 0 }}>{step.desc}</p>
+                {i < 3 && (
+                  <div className="hidden lg:block" style={{ position: "absolute", right: -20, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.2)", fontSize: 28, zIndex: 1 }}>→</div>
                 )}
               </div>
             ))}
@@ -228,106 +327,243 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════
-          FOOTER
-      ═══════════════════════════════════════════════════ */}
-      <footer className="relative py-16 md:py-20 px-5 md:px-8 bg-[#19181e] text-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-0.5 text-[1.5rem] font-bold tracking-[-0.03em] mb-4" style={{ fontFamily: "'Fraunces', serif" }}>
-                {t('nav.brand')}
+      {/* ═══ WHY DIFFERENT ════════════════════════════════════════════════════ */}
+      <Section bg={gray50} id="why-different">
+        <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <Eyebrow label={t("whyDifferent.eyebrow")} />
+          <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: gray900, margin: "0 0 16px" }}>
+            {t("whyDifferent.title")}
+          </h2>
+        </div>
+
+        <div style={{ display: "grid", gap: 20 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {(t.raw("whyDifferent.items") as Array<{ title: string; desc: string }>).map((item, i) => {
+            const icons = ["🎯", "⚡", "🤖", "📊", "🤝"];
+            const colors = ["#dbeafe", "#fef3c7", "#ede9fe", "#dcfce7", "#fce7f3"];
+            return (
+              <div key={i} style={{ background: white, borderRadius: 20, padding: "28px 22px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1px solid #f0f0f0", textAlign: "center" }}>
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: colors[i], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 16px" }}>{icons[i]}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: gray900, marginBottom: 6 }}>{item.title}</div>
+                <div style={{ fontSize: 13, color: gray600 }}>{item.desc}</div>
               </div>
-              <p className="text-[#a09cb2] text-sm leading-[1.6]">
-                AI-powered CV optimization to help you land more interviews.
-              </p>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* ═══ USER JOURNEY ═════════════════════════════════════════════════════ */}
+      <Section bg={white} id="journey">
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <Eyebrow label={t("journey.eyebrow")} />
+          <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: gray900, margin: "0 0 8px" }}>
+            {t("journey.title")}
+          </h2>
+        </div>
+
+        <div style={{ display: "grid", gap: 24, alignItems: "stretch" }} className="grid grid-cols-1 md:grid-cols-2">
+          {/* Before */}
+          <div style={{ background: "#fef2f2", borderRadius: 20, padding: "32px", border: "1px solid #fecaca" }}>
+            <div style={{ display: "inline-block", background: "#ef4444", color: white, fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 50, marginBottom: 20 }}>
+              {t("journey.before.label")}
             </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-[#a09cb2]">
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#how" className="hover:text-white transition-colors">How it works</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-[#a09cb2]">
-                <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Help</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-[#a09cb2]">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-              </ul>
+            <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+              <div style={{ fontSize: 60 }}>😔</div>
+              <p style={{ fontSize: 16, color: "#991b1b", fontWeight: 600, margin: 0 }}>{t("journey.before.desc")}</p>
             </div>
           </div>
-          <div className="pt-8 border-t border-[#2c2b34] flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[#a09cb2] text-sm">
-              {t('footer.copyright')}
-            </p>
-            <div className="flex items-center gap-6 text-sm text-[#a09cb2]">
-              <a href="#" className="hover:text-white transition-colors">{t('footer.links.privacy')}</a>
-              <a href="#" className="hover:text-white transition-colors">{t('footer.links.terms')}</a>
-              <a href="#" className="hover:text-white transition-colors">{t('footer.links.contact')}</a>
+
+          {/* After */}
+          <div style={{ background: "#f0fdf4", borderRadius: 20, padding: "32px", border: "1px solid #bbf7d0" }}>
+            <div style={{ display: "inline-block", background: "#16a34a", color: white, fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 50, marginBottom: 20 }}>
+              {t("journey.after.label")}
+            </div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+              {(t.raw("journey.after.steps") as string[]).map((step: string, i: number) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ background: white, borderRadius: 12, padding: "10px 14px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                    <div style={{ fontSize: ["📄", "🎯", "🎤", "🏆"][i] ? 22 : 22 }}>
+                      {["📄", "🎯", "🎤", "🏆"][i]}
+                    </div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: gray900, marginTop: 4, maxWidth: 70 }}>{step}</div>
+                  </div>
+                  {i < 3 && <span style={{ color: "#16a34a", fontSize: 18, fontWeight: 700 }}>→</span>}
+                </div>
+              ))}
             </div>
           </div>
+        </div>
+      </Section>
+
+      {/* ═══ TARGET USERS ═════════════════════════════════════════════════════ */}
+      <Section bg={gray50} id="users">
+        <div style={{ textAlign: "center", marginBottom: 52 }}>
+          <Eyebrow label={t("users.eyebrow")} />
+          <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: gray900, margin: "0 0 8px" }}>
+            {t("users.title")}
+          </h2>
+        </div>
+
+        <div style={{ display: "grid", gap: 20 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {(t.raw("users.personas") as Array<{ title: string; desc: string }>).map((p, i) => {
+            const avatars = ["🎓", "🔄", "💼", "💻"];
+            const bgColors = [purpleLight, "#dbeafe", "#dcfce7", "#fef3c7"];
+            return (
+              <div key={i} style={{ background: white, borderRadius: 20, padding: "32px 24px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1px solid #f0f0f0", textAlign: "center" }}>
+                <div style={{ width: 72, height: 72, borderRadius: "50%", background: bgColors[i], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, margin: "0 auto 16px" }}>{avatars[i]}</div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: gray900, margin: "0 0 8px" }}>{p.title}</h3>
+                <p style={{ fontSize: 13, color: gray600, margin: 0 }}>{p.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* ═══ PRICING ══════════════════════════════════════════════════════════ */}
+      <section id="pricing" style={{ background: navy, padding: "80px 24px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <Eyebrow label={t("pricing.eyebrow")} light />
+            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: white, margin: "0 0 10px" }}>
+              {t("pricing.title")}
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, margin: 0 }}>{t("pricing.subtitle")}</p>
+          </div>
+
+          <div style={{ display: "grid", gap: 24, alignItems: "stretch" }} className="grid grid-cols-1 md:grid-cols-3">
+            {(t.raw("pricing.plans") as Array<{ name: string; price: string; period: string; desc: string; features: string[]; cta: string; highlighted: boolean }>)
+              .map((plan, i) => (
+                <div key={i} style={{
+                  background: plan.highlighted ? purple : "rgba(255,255,255,0.06)",
+                  borderRadius: 24, padding: "36px 28px",
+                  border: plan.highlighted ? `2px solid ${purple}` : "1px solid rgba(255,255,255,0.1)",
+                  position: "relative", transform: plan.highlighted ? "scale(1.02)" : "none",
+                  boxShadow: plan.highlighted ? "0 20px 60px rgba(124,92,252,0.3)" : "none",
+                }}>
+                  {plan.highlighted && (
+                    <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "#fbbf24", color: "#1a1a1a", fontSize: 11, fontWeight: 700, padding: "4px 14px", borderRadius: 50 }}>
+                      MOST POPULAR
+                    </div>
+                  )}
+                  <div style={{ fontSize: 18, fontWeight: 700, color: white, marginBottom: 4 }}>{plan.name}</div>
+                  <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", marginBottom: 20 }}>{plan.desc}</div>
+                  <div style={{ marginBottom: 28 }}>
+                    <span style={{ fontSize: 44, fontWeight: 900, color: white }}>{plan.price}</span>
+                    <span style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", marginLeft: 6 }}>/{plan.period}</span>
+                  </div>
+                  <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 10 }}>
+                    {plan.features.map((f: string, j: number) => (
+                      <li key={j} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: "rgba(255,255,255,0.8)" }}>
+                        <span style={{ color: "#4ade80", flexShrink: 0, marginTop: 1 }}>✓</span> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/signup" style={{
+                    display: "block", textAlign: "center",
+                    background: plan.highlighted ? white : "rgba(255,255,255,0.1)",
+                    color: plan.highlighted ? purple : white,
+                    fontWeight: 700, fontSize: 15, padding: "13px", borderRadius: 12,
+                    textDecoration: "none", transition: "all 0.2s",
+                  }}>
+                    {plan.cta}
+                  </Link>
+                </div>
+              ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ VISION ═══════════════════════════════════════════════════════════ */}
+      <Section bg={gray50} id="vision">
+        <div style={{ display: "grid", gap: 48, alignItems: "center" }} className="grid grid-cols-1 lg:grid-cols-2">
+          <div>
+            <Eyebrow label={t("vision.eyebrow")} />
+            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: gray900, lineHeight: 1.2, margin: "0 0 28px" }}>
+              {t("vision.title")}
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
+              {(t.raw("vision.points") as string[]).map((p: string, i: number) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: purple, display: "flex", alignItems: "center", justifyContent: "center", color: white, fontWeight: 800, fontSize: 14, flexShrink: 0 }}>
+                    {i + 1}
+                  </div>
+                  <span style={{ fontSize: 16, fontWeight: 600, color: gray900 }}>{p}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ background: `linear-gradient(135deg, ${navy}, #1a1f45)`, borderRadius: 24, padding: "48px 40px" }}>
+            <div style={{ fontSize: 60, marginBottom: 24, color: purple }}>"</div>
+            <blockquote style={{ fontSize: 22, fontWeight: 700, color: white, lineHeight: 1.5, margin: "0 0 24px", fontStyle: "italic" }}>
+              {t("vision.quote")}
+            </blockquote>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>— cvolt team</div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ FINAL CTA ════════════════════════════════════════════════════════ */}
+      <section id="employers" style={{ background: `linear-gradient(135deg, ${navy} 0%, #1a1f45 50%, #0d1235 100%)`, padding: "80px 24px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gap: 48, alignItems: "center" }} className="grid grid-cols-1 lg:grid-cols-2">
+          <div>
+            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 800, color: white, margin: "0 0 20px", lineHeight: 1.2 }}>
+              {t("cta.title")}
+            </h2>
+            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 36px", display: "flex", flexDirection: "column", gap: 12 }}>
+              {(t.raw("cta.points") as string[]).map((p: string, i: number) => (
+                <li key={i} style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 16, color: "rgba(255,255,255,0.8)", fontWeight: 500 }}>
+                  <span style={{ color: "#4ade80", fontSize: 18 }}>●</span> {p}
+                </li>
+              ))}
+            </ul>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+              <Link href="/signup" style={{
+                background: purple, color: white, fontWeight: 700, fontSize: 16,
+                padding: "14px 32px", borderRadius: 50, textDecoration: "none",
+                boxShadow: "0 8px 24px rgba(124,92,252,0.4)",
+              }}>
+                {t("cta.button")}
+              </Link>
+              <Link href="/contact" style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, display: "flex", alignItems: "center", textDecoration: "none" }}>
+                {t("cta.employers")} →
+              </Link>
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 24, padding: "40px 32px", textAlign: "center" }}>
+              <div style={{ fontSize: 56, marginBottom: 12 }}>
+                c<span style={{ color: purple }}>volt</span>
+              </div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 24 }}>Your Career. Your Future. Our Mission.</div>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", margin: "0 0 24px" }}>{t("cta.subtitle")}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <Link href="/signup" style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  background: "#1a1a2e", color: white, padding: "12px 24px", borderRadius: 10,
+                  textDecoration: "none", fontWeight: 600, fontSize: 14, border: "1px solid rgba(255,255,255,0.1)",
+                }}>
+                  <span>🚀</span> Start on Web — Free
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FOOTER ═══════════════════════════════════════════════════════════ */}
+      <footer style={{ background: "#06091a", padding: "40px 24px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: white, marginBottom: 4 }}>c<span style={{ color: purple }}>volt</span></div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }}>{t("footer.tagline")}</div>
+          </div>
+          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+            {Object.entries(t.raw("footer.links") as Record<string, string>).map(([key, label]) => (
+              <a key={key} href="#" style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, textDecoration: "none" }}>{label}</a>
+            ))}
+          </div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{t("footer.copyright")}</div>
         </div>
       </footer>
     </main>
-  );
-}
-
-// ── Hero CV Mockup Component ──────────────────────────────────────────
-
-function HeroCVMockup() {
-  return (
-    <div className="relative">
-      {/* Mockup container */}
-      <div className="relative bg-white rounded-[24px] shadow-[0_20px_40px_rgba(25,24,30,.15)] p-8 max-w-sm mx-auto">
-
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-[#d4922a] rounded-full flex items-center justify-center text-white font-bold">
-            JD
-          </div>
-          <div>
-            <div className="font-semibold text-[#19181e]">Jane Doe</div>
-            <div className="text-sm text-[#6b6779]">Software Engineer</div>
-          </div>
-        </div>
-
-        {/* Content preview */}
-        <div className="space-y-4">
-          <div className="h-3 bg-[#f0ede6] rounded w-3/4"></div>
-          <div className="h-3 bg-[#f0ede6] rounded w-full"></div>
-          <div className="h-3 bg-[#f0ede6] rounded w-5/6"></div>
-          <div className="h-3 bg-[#f0ede6] rounded w-2/3"></div>
-        </div>
-
-        {/* Skills tags */}
-        <div className="flex flex-wrap gap-2 mt-6">
-          {['React', 'TypeScript', 'Node.js'].map(skill => (
-            <span key={skill} className="px-3 py-1 bg-[#f0ede6] text-[#6b6779] text-xs rounded-full">
-              {skill}
-            </span>
-          ))}
-        </div>
-
-        {/* Download badge */}
-        <div className="absolute -top-3 -right-3 bg-[#1f8a5e] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-          ✓ ATS Ready
-        </div>
-      </div>
-
-      {/* Floating elements */}
-      <div className="absolute -top-4 -left-4 w-8 h-8 bg-[#fef3dc] rounded-full opacity-80 animate-bounce" style={{ animationDelay: '0s' }} />
-      <div className="absolute -bottom-2 -right-6 w-6 h-6 bg-[#d5f5e8] rounded-full opacity-60 animate-bounce" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-1/2 -left-8 w-4 h-4 bg-[#fce4e4] rounded-full opacity-70 animate-bounce" style={{ animationDelay: '2s' }} />
-    </div>
   );
 }
