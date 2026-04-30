@@ -457,7 +457,7 @@ export default function LandingPage() {
                       </li>
                     ))}
                   </ul>
-                  <Link href="/signup" style={{
+                  <Link href={`/${locale}/signup?plan=${plan.name.toLowerCase()}`} style={{
                     display: "block", textAlign: "center",
                     background: plan.highlighted ? white : "rgba(255,255,255,0.1)",
                     color: plan.highlighted ? purple : white,
@@ -516,14 +516,14 @@ export default function LandingPage() {
               ))}
             </ul>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <Link href="/signup" style={{
+              <Link href={`/${locale}/signup`} style={{
                 background: purple, color: white, fontWeight: 700, fontSize: 16,
                 padding: "14px 32px", borderRadius: 50, textDecoration: "none",
                 boxShadow: "0 8px 24px rgba(124,92,252,0.4)",
               }}>
                 {t("cta.button")}
               </Link>
-              <Link href="/contact" style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, display: "flex", alignItems: "center", textDecoration: "none" }}>
+              <Link href={`/${locale}/signup`} style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, display: "flex", alignItems: "center", textDecoration: "none" }}>
                 {t("cta.employers")} →
               </Link>
             </div>
@@ -536,7 +536,7 @@ export default function LandingPage() {
               <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 24 }}>Your Career. Your Future. Our Mission.</div>
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", margin: "0 0 24px" }}>{t("cta.subtitle")}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <Link href="/signup" style={{
+                <Link href={`/${locale}/signup`} style={{
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                   background: "#1a1a2e", color: white, padding: "12px 24px", borderRadius: 10,
                   textDecoration: "none", fontWeight: 600, fontSize: 14, border: "1px solid rgba(255,255,255,0.1)",

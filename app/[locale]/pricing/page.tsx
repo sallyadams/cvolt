@@ -14,6 +14,7 @@ const white = "#ffffff"
 const PLANS = [
   {
     name: "Free",
+    planKey: "free",
     monthly: "€0",
     yearly: "€0",
     desc: "Perfect to get started",
@@ -29,12 +30,12 @@ const PLANS = [
       { text: "Priority support", ok: false },
     ],
     cta: "Start free",
-    href: "/signup",
     highlighted: false,
     badge: null,
   },
   {
     name: "Pro",
+    planKey: "pro",
     monthly: "€9",
     yearly: "€7",
     desc: "For serious job seekers",
@@ -50,12 +51,12 @@ const PLANS = [
       { text: "Priority support", ok: true },
     ],
     cta: "Start Pro",
-    href: "/upgrade",
     highlighted: true,
     badge: "MOST POPULAR",
   },
   {
     name: "Premium",
+    planKey: "premium",
     monthly: "€19",
     yearly: "€15",
     desc: "For maximum results",
@@ -71,7 +72,6 @@ const PLANS = [
       { text: "30-day money-back guarantee", ok: true },
     ],
     cta: "Go Premium",
-    href: "/upgrade",
     highlighted: false,
     badge: "BEST RESULTS",
   },
@@ -174,7 +174,7 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              <Link href={plan.href} style={{
+              <Link href={`/${locale}/signup?plan=${plan.planKey}`} style={{
                 display: "block", textAlign: "center",
                 background: plan.highlighted ? purple : "#f1f5f9",
                 color: plan.highlighted ? white : gray900,
@@ -194,7 +194,7 @@ export default function PricingPage() {
           <h2 style={{ fontSize: 28, fontWeight: 800, color: gray900, margin: "0 0 12px" }}>Still unsure?</h2>
           <p style={{ fontSize: 16, color: gray600, margin: "0 0 32px" }}>Start with the Free plan. Upgrade whenever you're ready — your data moves with you.</p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/signup" style={{ background: purple, color: white, padding: "13px 28px", borderRadius: 10, textDecoration: "none", fontWeight: 700, fontSize: 15 }}>
+            <Link href={`/${locale}/signup?plan=free`} style={{ background: purple, color: white, padding: "13px 28px", borderRadius: 10, textDecoration: "none", fontWeight: 700, fontSize: 15 }}>
               Start for free →
             </Link>
             <Link href={`/${locale}`} style={{ background: "#f1f5f9", color: gray900, padding: "13px 28px", borderRadius: 10, textDecoration: "none", fontWeight: 600, fontSize: 15 }}>

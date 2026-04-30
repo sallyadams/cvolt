@@ -27,7 +27,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Invalid email or password")
       } else {
-        router.push("/app")
+        router.push("/dashboard")
       }
     } catch (err) {
       setError("Something went wrong")
@@ -37,7 +37,7 @@ export default function LoginPage() {
   }
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/app" })
+    signIn("google", { callbackUrl: "/dashboard" })
   }
 
   return (
