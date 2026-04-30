@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import type { ReactNode } from "react"
 
@@ -45,8 +45,31 @@ function NavItem({ href, icon, label, exact }: { href: string; icon: string; lab
 }
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login")
+    }
+  }, [status, router])
+
+  if (status === "loading") {
+    return (
+      <div style={{ minHeight: "100vh", background: "#f8f9fe", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ width: 40, height: 40, border: "3px solid #e5e7eb", borderTopColor: "#7c5cfc", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto" }} />
+          <p style={{ marginTop: 16, color: "#6b7280", fontSize: 14 }}>Loading…</p>
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
+  if (status === "unauthenticated") {
+    return null
+  }
 
   const tierBadge = (tier: string) => {
     const map: Record<string, { bg: string; color: string }> = {

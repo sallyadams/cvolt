@@ -12,6 +12,18 @@ interface CVDocument {
   version: number
 }
 
+function readFileAsBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      resolve(result.split(",")[1])
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 export default function CVPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -24,25 +36,24 @@ export default function CVPage() {
   const [showUpload, setShowUpload] = useState(false)
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
+    if (status === "unauthenticated") {
+      router.push("/login")
       return
     }
-
-    if (status === 'authenticated') {
+    if (status === "authenticated") {
       fetchCVs()
     }
   }, [status, router])
 
   const fetchCVs = async () => {
     try {
-      const response = await fetch('/api/cv')
+      const response = await fetch("/api/cv")
       if (response.ok) {
         const data = await response.json()
         setCvs(data)
       }
     } catch (error) {
-      console.error('Failed to fetch CVs:', error)
+      console.error("Failed to fetch CVs:", error)
     } finally {
       setLoading(false)
     }
@@ -51,7 +62,10 @@ export default function CVPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      if (selectedFile.type === "application/pdf" || selectedFile.type === "text/plain") {
+      if (
+        selectedFile.type === "application/pdf" ||
+        selectedFile.type === "text/plain"
+      ) {
         setFile(selectedFile)
         setText("")
         setError("")
@@ -78,27 +92,34 @@ export default function CVPage() {
     setError("")
 
     try {
-      let cvText = text
+      let body: Record<string, string>
 
       if (file) {
         if (file.type === "text/plain") {
-          cvText = await file.text()
+          body = { text: await file.text() }
         } else {
-          setError("PDF parsing not implemented yet. Please paste text instead.")
-          setIsUploading(false)
-          return
+          // PDF — send as base64 for server-side parsing
+          if (file.size > 5 * 1024 * 1024) {
+            setError("PDF must be under 5 MB")
+            setIsUploading(false)
+            return
+          }
+          const pdfBase64 = await readFileAsBase64(file)
+          body = { pdfBase64, fileName: file.name }
         }
+      } else {
+        body = { text: text.trim() }
       }
 
       const response = await fetch("/api/cv/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: cvText }),
+        body: JSON.stringify(body),
       })
 
       if (response.ok) {
         const data = await response.json()
-        fetchCVs() // Refresh the list
+        fetchCVs()
         setShowUpload(false)
         setFile(null)
         setText("")
@@ -107,14 +128,14 @@ export default function CVPage() {
         const data = await response.json()
         setError(data.error || "Upload failed")
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong")
     } finally {
       setIsUploading(false)
     }
   }
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -143,7 +164,7 @@ export default function CVPage() {
               onClick={() => setShowUpload(!showUpload)}
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              {showUpload ? 'Cancel Upload' : 'Upload New CV'}
+              {showUpload ? "Cancel Upload" : "Upload New CV"}
             </button>
           </div>
 
@@ -165,11 +186,11 @@ export default function CVPage() {
                     <div>
                       <h3 className="font-medium text-gray-900">{cv.title}</h3>
                       <p className="text-sm text-gray-500">
-                        Version {cv.version} • Uploaded {new Date(cv.createdAt).toLocaleDateString()}
+                        Version {cv.version} •{" "}
+                        {new Date(cv.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-
                   <div className="flex space-x-3">
                     <Link
                       href={`/cv/${cv.id}/edit`}
@@ -207,6 +228,12 @@ export default function CVPage() {
                   onChange={handleFileChange}
                   className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
+                {file && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Selected: {file.name} (
+                    {(file.size / 1024).toFixed(0)} KB)
+                  </p>
+                )}
               </div>
 
               <div className="relative">
@@ -214,7 +241,9 @@ export default function CVPage() {
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or paste your CV text</span>
+                  <span className="px-2 bg-white text-gray-500">
+                    Or paste your CV text
+                  </span>
                 </div>
               </div>
 
@@ -224,7 +253,7 @@ export default function CVPage() {
                   onChange={handleTextChange}
                   placeholder="Paste your CV content here..."
                   rows={10}
-                  className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-3"
                 />
               </div>
 
@@ -237,7 +266,7 @@ export default function CVPage() {
                 disabled={isUploading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {isUploading ? "Analyzing..." : "Analyze My CV"}
+                {isUploading ? "Analyzing your CV..." : "Analyze My CV"}
               </button>
             </form>
           </div>
@@ -245,10 +274,7 @@ export default function CVPage() {
 
         {/* Navigation */}
         <div className="mt-8 flex justify-center">
-          <Link
-            href="/"
-            className="text-blue-600 hover:text-blue-500"
-          >
+          <Link href="/dashboard" className="text-blue-600 hover:text-blue-500">
             ← Back to Dashboard
           </Link>
         </div>

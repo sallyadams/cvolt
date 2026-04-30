@@ -10,12 +10,8 @@ function getBaseUrl(req: NextRequest): string {
   }
   const fwdHost = req.headers.get("x-forwarded-host")
   const fwdProto = req.headers.get("x-forwarded-proto") ?? "https"
-  if (fwdHost) {
-    return `${fwdProto}://${fwdHost}`
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
-  }
+  if (fwdHost) return `${fwdProto}://${fwdHost}`
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   const origin = req.headers.get("origin")
   if (origin) return origin
   const host = req.headers.get("host")
@@ -26,12 +22,38 @@ function getBaseUrl(req: NextRequest): string {
   return "http://localhost:3000"
 }
 
-function getRequiredEnvVar(name: string): string {
-  const value = process.env[name]?.trim()
-  if (!value) {
-    throw new Error(`Environment variable ${name} is required but not set`)
+function getStripeConfig() {
+  const secretKey = process.env.STRIPE_SECRET_KEY?.trim()
+  // Support both naming conventions
+  const priceStarter =
+    process.env.STRIPE_PRICE_STARTER?.trim() ||
+    process.env.STRIPE_STARTER_PRICE_ID?.trim()
+  const pricePro =
+    process.env.STRIPE_PRICE_PRO?.trim() ||
+    process.env.STRIPE_PRO_PRICE_ID?.trim()
+  const pricePremium =
+    process.env.STRIPE_PRICE_PREMIUM?.trim() ||
+    process.env.STRIPE_PREMIUM_PRICE_ID?.trim()
+
+  const missing: string[] = []
+  if (!secretKey) missing.push("STRIPE_SECRET_KEY")
+  if (!priceStarter) missing.push("STRIPE_PRICE_STARTER")
+  if (!pricePro) missing.push("STRIPE_PRICE_PRO")
+  if (!pricePremium) missing.push("STRIPE_PRICE_PREMIUM")
+
+  if (missing.length > 0) {
+    return { configured: false as const, missing }
   }
-  return value
+
+  return {
+    configured: true as const,
+    secretKey: secretKey!,
+    priceIds: {
+      starter: priceStarter!,
+      pro: pricePro!,
+      premium: pricePremium!,
+    },
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -41,21 +63,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { tier } = await req.json()
+    const body = await req.json().catch(() => ({}))
+    const { tier } = body as { tier?: string }
     if (!tier) {
       return NextResponse.json({ error: "Tier is required" }, { status: 400 })
     }
 
-    const secretKey = process.env.STRIPE_SECRET_KEY?.trim()
-    if (!secretKey) {
-      return NextResponse.json({ error: "Stripe not configured" }, { status: 500 })
+    const config = getStripeConfig()
+    if (!config.configured) {
+      console.warn("Stripe not configured. Missing:", config.missing)
+      return NextResponse.json(
+        { success: false, error: "Stripe is not configured" },
+        { status: 503 }
+      )
     }
 
-    const stripe = new Stripe(secretKey, {
+    const priceId = config.priceIds[tier as keyof typeof config.priceIds]
+    if (!priceId) {
+      return NextResponse.json(
+        { error: "Invalid plan selected" },
+        { status: 400 }
+      )
+    }
+
+    const stripe = new Stripe(config.secretKey, {
       apiVersion: "2026-04-22.dahlia",
     })
 
-    // Get or create Stripe customer
     let user = await prisma.user.findUnique({
       where: { id: session.user.id },
     })
@@ -65,34 +99,21 @@ export async function POST(req: NextRequest) {
     }
 
     let customerId = user.stripeCustomerId
-
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
         metadata: { userId: session.user.id },
       })
       customerId = customer.id
-      user = await prisma.user.update({
+      await prisma.user.update({
         where: { id: session.user.id },
         data: { stripeCustomerId: customerId },
       })
     }
 
-    // Map tier to Stripe price ID (must be set up in Stripe dashboard)
-    const tierToPriceId: Record<string, string> = {
-      starter: getRequiredEnvVar("STRIPE_PRICE_STARTER"),
-      pro: getRequiredEnvVar("STRIPE_PRICE_PRO"),
-      premium: getRequiredEnvVar("STRIPE_PRICE_PREMIUM"),
-    }
-
-    const priceId = tierToPriceId[tier]
-    if (!priceId) {
-      return NextResponse.json({ error: "Invalid tier" }, { status: 400 })
-    }
-
     const baseUrl = getBaseUrl(req)
 
-    const session_new = await stripe.checkout.sessions.create({
+    const checkout = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
@@ -100,17 +121,15 @@ export async function POST(req: NextRequest) {
       cancel_url: `${baseUrl}/upgrade`,
       allow_promotion_codes: true,
       metadata: { userId: session.user.id, tier },
-      subscription_data: {
-        metadata: { userId: session.user.id, tier },
-      },
+      subscription_data: { metadata: { userId: session.user.id, tier } },
     })
 
-    return NextResponse.json({ url: session_new.url })
+    return NextResponse.json({ success: true, url: checkout.url })
   } catch (error) {
     console.error("Checkout error:", error)
-    if (error instanceof Error && error.message.includes("Environment variable")) {
-      return NextResponse.json({ error: "Payment system not configured" }, { status: 500 })
-    }
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    )
   }
 }

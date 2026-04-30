@@ -201,7 +201,7 @@ export default function ScanResultsPage() {
         <div className="flex gap-3">
           {!is_premium && (
             <button
-              onClick={() => router.push("/app/upgrade")}
+              onClick={() => router.push("/upgrade")}
               className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
             >
               Unlock Full Report — €7/month

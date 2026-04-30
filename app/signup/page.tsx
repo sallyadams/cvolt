@@ -1,17 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
-export default function SignupPage() {
+function SignupForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const plan = searchParams.get("plan")
+
+  const destination = plan && plan !== "free" ? `/upgrade?plan=${plan}` : "/dashboard"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +30,6 @@ export default function SignupPage() {
       })
 
       if (response.ok) {
-        // Auto sign in after signup
         const result = await signIn("credentials", {
           email,
           password,
@@ -36,7 +39,7 @@ export default function SignupPage() {
         if (result?.error) {
           setError("Account created but sign in failed")
         } else {
-          router.push("/cv") // Go to CV upload
+          router.push(destination)
         }
       } else {
         const data = await response.json()
@@ -50,7 +53,7 @@ export default function SignupPage() {
   }
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/cv" })
+    signIn("google", { callbackUrl: destination })
   }
 
   return (
@@ -173,5 +176,13 @@ export default function SignupPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
   )
 }
