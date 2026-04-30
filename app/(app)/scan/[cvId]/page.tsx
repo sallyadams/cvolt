@@ -109,7 +109,7 @@ export default function ScanResultsPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button onClick={() => router.push("/app/cv")} className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+          <button onClick={() => router.push("/cv")} className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
             Try Again
           </button>
         </div>
@@ -124,7 +124,7 @@ export default function ScanResultsPage() {
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">🚫</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">You've used your free scan</h2>
           <p className="text-gray-500 mb-8">Upgrade to Pro and find out exactly what's stopping you from getting interviews.</p>
-          <button onClick={() => router.push("/app/upgrade")} className="w-full bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
+          <button onClick={() => router.push("/upgrade")} className="w-full bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
             Unlock Pro — €7/month
           </button>
           <p className="mt-3 text-sm text-gray-400">Cancel anytime · 30-day money-back guarantee</p>
@@ -184,7 +184,7 @@ export default function ScanResultsPage() {
                   {locked && (
                     <div className="absolute inset-0 flex items-center justify-center rounded-xl">
                       <button
-                        onClick={() => router.push("/app/upgrade")}
+                        onClick={() => router.push("/upgrade")}
                         className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"
                       >
                         Unlock fix {i + 1} →
@@ -208,7 +208,7 @@ export default function ScanResultsPage() {
             </button>
           )}
           <button
-            onClick={() => router.push("/app/cv")}
+            onClick={() => router.push("/cv")}
             className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
           >
             {is_premium ? "← Back to My CVs" : "Upload Different CV"}

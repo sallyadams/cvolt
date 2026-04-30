@@ -13,7 +13,7 @@ function UpgradeParamWatcher({ onUpgraded }: { onUpgraded: () => void }) {
   useEffect(() => {
     if (searchParams.get("upgraded") !== "true") return
     onUpgraded()
-    router.replace("/app")
+    router.replace("/dashboard")
   }, [searchParams, onUpgraded, router])
 
   return null
@@ -34,14 +34,14 @@ interface UserStats {
 }
 
 const QUICK_ACTIONS = [
-  { href: "/app/cv", icon: "📄", label: "My CVs", desc: "Upload & manage CVs", color: "#ede9fe", accent: purple },
-  { href: "/app/match", icon: "🎯", label: "Job Match", desc: "Find matching jobs", color: "#dbeafe", accent: "#3b82f6" },
-  { href: "/app/tracker", icon: "📊", label: "Applications", desc: "Track your pipeline", color: "#dcfce7", accent: "#16a34a" },
-  { href: "/app/interview", icon: "🎤", label: "Interview Prep", desc: "Practice & prepare", color: "#fef3c7", accent: "#d97706" },
-  { href: "/app/bullets", icon: "✨", label: "Bullet Improver", desc: "Sharpen your bullets", color: "#fce7f3", accent: "#db2777" },
-  { href: "/app/cover-letter", icon: "📝", label: "Cover Letter", desc: "AI-written letters", color: "#ffedd5", accent: "#ea580c" },
-  { href: "/app/linkedin", icon: "💼", label: "LinkedIn", desc: "Optimize your profile", color: "#e0f2fe", accent: "#0284c7" },
-  { href: "/app/cv", icon: "🔍", label: "ATS Scanner", desc: "Check your ATS score", color: "#f0fdf4", accent: "#15803d" },
+  { href: "/cv", icon: "📄", label: "My CVs", desc: "Upload & manage CVs", color: "#ede9fe", accent: purple },
+  { href: "/match", icon: "🎯", label: "Job Match", desc: "Find matching jobs", color: "#dbeafe", accent: "#3b82f6" },
+  { href: "/tracker", icon: "📊", label: "Applications", desc: "Track your pipeline", color: "#dcfce7", accent: "#16a34a" },
+  { href: "/interview", icon: "🎤", label: "Interview Prep", desc: "Practice & prepare", color: "#fef3c7", accent: "#d97706" },
+  { href: "/bullets", icon: "✨", label: "Bullet Improver", desc: "Sharpen your bullets", color: "#fce7f3", accent: "#db2777" },
+  { href: "/cover-letter", icon: "📝", label: "Cover Letter", desc: "AI-written letters", color: "#ffedd5", accent: "#ea580c" },
+  { href: "/linkedin", icon: "💼", label: "LinkedIn", desc: "Optimize your profile", color: "#e0f2fe", accent: "#0284c7" },
+  { href: "/cv", icon: "🔍", label: "ATS Scanner", desc: "Check your ATS score", color: "#f0fdf4", accent: "#15803d" },
 ]
 
 function ScoreCircle({ score }: { score: number | null }) {
@@ -147,7 +147,7 @@ export default function DashboardPage() {
               {tierBadge.label}
             </span>
             {tier === "free" && (
-              <Link href="/app/upgrade" style={{ background: purple, color: white, fontSize: 13, fontWeight: 700, padding: "6px 16px", borderRadius: 50, textDecoration: "none", boxShadow: "0 4px 12px rgba(124,92,252,0.3)" }}>
+              <Link href="/upgrade" style={{ background: purple, color: white, fontSize: 13, fontWeight: 700, padding: "6px 16px", borderRadius: 50, textDecoration: "none", boxShadow: "0 4px 12px rgba(124,92,252,0.3)" }}>
                 Upgrade ⚡
               </Link>
             )}
@@ -179,7 +179,7 @@ export default function DashboardPage() {
                   {stats?.totalScans ?? 0}
                 </div>
                 <p style={{ fontSize: 13, color: gray600, margin: 0 }}>ATS analyses completed</p>
-                <Link href="/app/cv" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 16, fontSize: 13, fontWeight: 600, color: purple, textDecoration: "none" }}>
+                <Link href="/cv" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 16, fontSize: 13, fontWeight: 600, color: purple, textDecoration: "none" }}>
                   Run a new scan →
                 </Link>
               </div>
@@ -248,7 +248,7 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 </div>
-                <Link href="/app/upgrade" style={{
+                <Link href="/upgrade" style={{
                   background: purple, color: white, fontWeight: 700, fontSize: 15,
                   padding: "14px 28px", borderRadius: 12, textDecoration: "none",
                   boxShadow: "0 4px 16px rgba(124,92,252,0.4)", flexShrink: 0,

@@ -307,7 +307,7 @@ export default function ProfilePage() {
                     </button>
                   )}
                   {step === STEPS.length - 1 && (
-                    <button onClick={() => { handleSave(); router.push("/app/cv"); }}
+                    <button onClick={() => { handleSave(); router.push("/cv"); }}
                       style={{ background: purple, color: white, border: "none", borderRadius: 10, padding: "12px 24px", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
                       Save & Continue →
                     </button>

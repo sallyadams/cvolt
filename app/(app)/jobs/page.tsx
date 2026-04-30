@@ -192,7 +192,7 @@ export default function JobsPage() {
                 <p style={{ fontSize: 13, color: gray600, margin: 0 }}>
                   Optimise your CV for this role with our ATS Scanner for a better chance of success.
                 </p>
-                <Link href="/app/cv" style={{ display: "inline-block", marginTop: 10, fontSize: 13, fontWeight: 600, color: purple, textDecoration: "none" }}>Scan my CV →</Link>
+                <Link href="/cv" style={{ display: "inline-block", marginTop: 10, fontSize: 13, fontWeight: 600, color: purple, textDecoration: "none" }}>Scan my CV →</Link>
               </div>
             </div>
           ) : (

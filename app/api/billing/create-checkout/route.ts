@@ -96,8 +96,8 @@ export async function POST(req: NextRequest) {
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/app?upgraded=true`,
-      cancel_url: `${baseUrl}/app/upgrade`,
+      success_url: `${baseUrl}/dashboard?upgraded=true`,
+      cancel_url: `${baseUrl}/upgrade`,
       allow_promotion_codes: true,
       metadata: { userId: session.user.id, tier },
       subscription_data: {

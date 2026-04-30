@@ -102,7 +102,7 @@ export default function CVPage() {
         setShowUpload(false)
         setFile(null)
         setText("")
-        router.push(`/app/scan/${data.cvId}`)
+        router.push(`/scan/${data.cvId}`)
       } else {
         const data = await response.json()
         setError(data.error || "Upload failed")

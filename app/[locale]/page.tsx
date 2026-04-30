@@ -164,7 +164,7 @@ export default function LandingPage() {
             <Link href="/login" style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
               {t("nav.signIn")}
             </Link>
-            <Link href="/app/cv" style={{
+            <Link href="/cv" style={{
               background: purple, color: white, fontSize: 14, fontWeight: 600,
               padding: "10px 22px", borderRadius: 50, textDecoration: "none",
               boxShadow: "0 4px 14px rgba(124,92,252,0.4)", transition: "all 0.2s",
@@ -206,7 +206,7 @@ export default function LandingPage() {
             </p>
 
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 48 }}>
-              <Link href="/app/cv" style={{
+              <Link href="/cv" style={{
                 background: purple, color: white, fontWeight: 700, fontSize: 16,
                 padding: "14px 32px", borderRadius: 50, textDecoration: "none",
                 boxShadow: "0 8px 24px rgba(124,92,252,0.4)", display: "inline-flex", alignItems: "center", gap: 8,

@@ -36,7 +36,7 @@ export default function SignupPage() {
         if (result?.error) {
           setError("Account created but sign in failed")
         } else {
-          router.push("/app/cv") // Go to CV upload
+          router.push("/cv") // Go to CV upload
         }
       } else {
         const data = await response.json()
@@ -50,7 +50,7 @@ export default function SignupPage() {
   }
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/app/cv" })
+    signIn("google", { callbackUrl: "/cv" })
   }
 
   return (

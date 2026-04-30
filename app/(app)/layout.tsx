@@ -11,15 +11,15 @@ const purple = "#7c5cfc"
 const white = "#ffffff"
 
 const NAV_ITEMS = [
-  { href: "/app", icon: "🏠", label: "Dashboard", exact: true },
-  { href: "/app/cv", icon: "📄", label: "My CVs" },
-  { href: "/app/scan", icon: "🔍", label: "ATS Scanner" },
-  { href: "/app/match", icon: "🎯", label: "Job Match" },
-  { href: "/app/tracker", icon: "📊", label: "Applications" },
-  { href: "/app/interview", icon: "🎤", label: "Interview Prep" },
-  { href: "/app/bullets", icon: "✨", label: "Bullet Improver" },
-  { href: "/app/cover-letter", icon: "📝", label: "Cover Letter" },
-  { href: "/app/linkedin", icon: "💼", label: "LinkedIn" },
+  { href: "/dashboard", icon: "🏠", label: "Dashboard", exact: true },
+  { href: "/cv", icon: "📄", label: "My CVs" },
+  { href: "/scan", icon: "🔍", label: "ATS Scanner" },
+  { href: "/match", icon: "🎯", label: "Job Match" },
+  { href: "/tracker", icon: "📊", label: "Applications" },
+  { href: "/interview", icon: "🎤", label: "Interview Prep" },
+  { href: "/bullets", icon: "✨", label: "Bullet Improver" },
+  { href: "/cover-letter", icon: "📝", label: "Cover Letter" },
+  { href: "/linkedin", icon: "💼", label: "LinkedIn" },
 ]
 
 function NavItem({ href, icon, label, exact }: { href: string; icon: string; label: string; exact?: boolean }) {
@@ -67,7 +67,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     }}>
       {/* Logo */}
       <div style={{ padding: "24px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <Link href="/app" style={{ fontSize: 22, fontWeight: 800, color: white, textDecoration: "none" }}>
+        <Link href="/dashboard" style={{ fontSize: 22, fontWeight: 800, color: white, textDecoration: "none" }}>
           c<span style={{ color: purple }}>volt</span>
         </Link>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2, fontWeight: 500 }}>Career Platform</div>
@@ -81,7 +81,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* Bottom */}
       <div style={{ padding: "16px 12px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", gap: 8 }}>
         {/* Upgrade CTA for free users */}
-        <Link href="/app/upgrade" style={{
+        <Link href="/upgrade" style={{
           display: "block", background: `linear-gradient(135deg, ${purple}, #9b7fff)`,
           borderRadius: 12, padding: "12px 16px", textDecoration: "none",
           fontSize: 13, fontWeight: 600, color: white, textAlign: "center",
@@ -107,7 +107,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "space-between" }}>
-              <Link href="/app/settings" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", textDecoration: "none" }}>Settings</Link>
+              <Link href="/settings" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", textDecoration: "none" }}>Settings</Link>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
                 style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
@@ -150,7 +150,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           >
             ☰
           </button>
-          <Link href="/app" style={{ fontSize: 18, fontWeight: 800, color: white, textDecoration: "none" }}>
+          <Link href="/dashboard" style={{ fontSize: 18, fontWeight: 800, color: white, textDecoration: "none" }}>
             c<span style={{ color: purple }}>volt</span>
           </Link>
           <div style={{ width: 32 }} />

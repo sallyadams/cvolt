@@ -50,7 +50,7 @@ const PLANS = [
       { text: "Priority support", ok: true },
     ],
     cta: "Start Pro",
-    href: "/app/upgrade",
+    href: "/upgrade",
     highlighted: true,
     badge: "MOST POPULAR",
   },
@@ -71,7 +71,7 @@ const PLANS = [
       { text: "30-day money-back guarantee", ok: true },
     ],
     cta: "Go Premium",
-    href: "/app/upgrade",
+    href: "/upgrade",
     highlighted: false,
     badge: "BEST RESULTS",
   },
@@ -100,7 +100,7 @@ export default function PricingPage() {
         </Link>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <LanguageSwitcher />
-          <Link href="/app" style={{ background: purple, color: white, fontSize: 13, fontWeight: 700, padding: "8px 18px", borderRadius: 50, textDecoration: "none" }}>
+          <Link href="/dashboard" style={{ background: purple, color: white, fontSize: 13, fontWeight: 700, padding: "8px 18px", borderRadius: 50, textDecoration: "none" }}>
             Dashboard
           </Link>
         </div>
