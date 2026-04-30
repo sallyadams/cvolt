@@ -1,9 +1,23 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense, useCallback } from "react"
+
+// Isolated component so useSearchParams() has a Suspense boundary above it
+function UpgradeParamWatcher({ onUpgraded }: { onUpgraded: () => void }) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (searchParams.get("upgraded") !== "true") return
+    onUpgraded()
+    router.replace("/app")
+  }, [searchParams, onUpgraded, router])
+
+  return null
+}
 
 const purple = "#7c5cfc"
 const navy = "#0a0e27"
@@ -54,13 +68,11 @@ function ScoreCircle({ score }: { score: number | null }) {
 
 export default function DashboardPage() {
   const { data: session } = useSession()
-  const router = useRouter()
-  const searchParams = useSearchParams()
   const [stats, setStats] = useState<UserStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showUpgradeBanner, setShowUpgradeBanner] = useState(false)
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await fetch("/api/dashboard/stats")
       if (response.ok) setStats(await response.json())
@@ -69,20 +81,17 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (!session?.user?.id) return
     fetchStats()
-  }, [session])
+  }, [session, fetchStats])
 
-  useEffect(() => {
-    if (searchParams.get("upgraded") !== "true") return
+  const handleUpgraded = useCallback(() => {
     setShowUpgradeBanner(true)
-    router.replace("/app")
-    const timer = setTimeout(fetchStats, 2500)
-    return () => clearTimeout(timer)
-  }, [searchParams])
+    setTimeout(fetchStats, 2500)
+  }, [fetchStats])
 
   if (!session) {
     return (
@@ -107,6 +116,10 @@ export default function DashboardPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8f9fe" }}>
+      <Suspense>
+        <UpgradeParamWatcher onUpgraded={handleUpgraded} />
+      </Suspense>
+
       {/* Upgrade success banner */}
       {showUpgradeBanner && (
         <div style={{ background: "#dcfce7", borderBottom: "1px solid #bbf7d0", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
