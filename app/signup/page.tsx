@@ -1,21 +1,33 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { useState, useEffect } from "react"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 
-function SignupForm() {
+export default function SignupPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [plan, setPlan] = useState<string | null>(null)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const plan = searchParams.get("plan")
 
-  const destination = plan && plan !== "free" ? `/upgrade?plan=${plan}` : "/dashboard"
+  // Read ?plan= from URL client-side only (avoids useSearchParams SSR suspension
+  // that causes a blank page before JS loads in production).
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const p = params.get("plan")
+      if (p) setPlan(p)
+    } catch (e) {
+      console.error("[signup] failed to read plan param:", e)
+    }
+  }, [])
+
+  const destination =
+    plan && plan !== "free" ? `/upgrade?plan=${plan}` : "/dashboard"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,6 +41,8 @@ function SignupForm() {
         body: JSON.stringify({ email, password, fullName }),
       })
 
+      const data = await response.json().catch(() => ({}))
+
       if (response.ok) {
         const result = await signIn("credentials", {
           email,
@@ -37,16 +51,17 @@ function SignupForm() {
         })
 
         if (result?.error) {
-          setError("Account created but sign in failed")
+          console.error("[signup] auto-login failed:", result.error)
+          setError("Account created but sign-in failed — please log in manually.")
         } else {
           router.push(destination)
         }
       } else {
-        const data = await response.json()
-        setError(data.error || "Something went wrong")
+        setError(data.error || "Something went wrong. Please try again.")
       }
     } catch (err) {
-      setError("Something went wrong")
+      console.error("[signup] unexpected error:", err)
+      setError("Network error. Please check your connection and try again.")
     } finally {
       setIsLoading(false)
     }
@@ -63,13 +78,22 @@ function SignupForm() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your CVolt account
           </h2>
+          {plan && plan !== "free" && (
+            <p className="mt-2 text-center text-sm text-indigo-600 font-medium">
+              You&apos;re signing up for the {plan.charAt(0).toUpperCase() + plan.slice(1)} plan
+            </p>
+          )}
           <p className="mt-2 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link
+              href="/login"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               Sign in
             </Link>
           </p>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -113,8 +137,9 @@ function SignupForm() {
                 type="password"
                 autoComplete="new-password"
                 required
+                minLength={6}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder="Password (min. 6 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -122,7 +147,9 @@ function SignupForm() {
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
+            <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
           )}
 
           <div>
@@ -131,7 +158,7 @@ function SignupForm() {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {isLoading ? "Creating account..." : "Create account"}
+              {isLoading ? "Creating account…" : "Create account"}
             </button>
           </div>
 
@@ -141,7 +168,9 @@ function SignupForm() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
+                <span className="px-2 bg-gray-50 text-gray-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -176,13 +205,5 @@ function SignupForm() {
         </form>
       </div>
     </div>
-  )
-}
-
-export default function SignupPage() {
-  return (
-    <Suspense>
-      <SignupForm />
-    </Suspense>
   )
 }
