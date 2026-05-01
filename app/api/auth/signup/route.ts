@@ -4,61 +4,65 @@ import { prisma } from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, fullName } = await req.json()
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required" },
-        { status: 400 }
-      )
+    const body = await req.json().catch(() => null)
+    if (!body) {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
     }
 
-    // Check if user already exists
+    const { email, password, fullName } = body
+
+    if (!email || typeof email !== "string") {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 })
+    }
+
+    if (!password || typeof password !== "string") {
+      return NextResponse.json({ error: "Password is required" }, { status: 400 })
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 })
+    }
+
+    const normalizedEmail = email.toLowerCase().trim()
+
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email: normalizedEmail },
     })
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "User already exists" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "An account with this email already exists" }, { status: 400 })
     }
 
-    // Hash password
     const passwordHash = await bcrypt.hash(password, 12)
 
-    // Create user
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         passwordHash,
-        fullName: fullName || null,
-      }
+        fullName: fullName?.trim() || null,
+      },
     })
 
-    // Track signup event
-    await prisma.analyticsEvent.create({
-      data: {
-        userId: user.id,
-        eventName: "signup_completed",
-        properties: JSON.stringify({ method: "email" })
-      }
-    })
+    try {
+      await prisma.analyticsEvent.create({
+        data: {
+          userId: user.id,
+          eventName: "signup_completed",
+          properties: JSON.stringify({ method: "email" }),
+        },
+      })
+    } catch {
+      // Non-critical — don't fail signup if analytics write fails
+    }
 
     return NextResponse.json({
-      message: "User created successfully",
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName
-      }
+      message: "Account created successfully",
+      user: { id: user.id, email: user.email, fullName: user.fullName },
     })
   } catch (error) {
-    console.error("Signup error:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error("[signup] error:", error)
+    const isDev = process.env.NODE_ENV === "development"
+    const message = isDev && error instanceof Error ? error.message : "Failed to create account. Please try again."
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
