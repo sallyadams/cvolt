@@ -1,12 +1,14 @@
 {
   "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
-  "env": {
-    "NODE_ENV": "production"
-  },
   "functions": {
     "app/api/**/*.ts": {
-      "maxDuration": 15
+      "maxDuration": 30
     }
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "NEXTAUTH_URL": "https://cvolt-app.vercel.app",
+    "NEXT_PUBLIC_APP_URL": "https://cvolt-app.vercel.app"
   }
 }
