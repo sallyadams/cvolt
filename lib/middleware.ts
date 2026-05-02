@@ -78,18 +78,24 @@ export async function checkFeatureAccess(
   const limits = TIER_LIMITS[tier] || TIER_LIMITS.free
   const limit = limits[feature]
 
-  // For free tier, check monthly credits
+  // For free tier: features with limit 0 are disabled outright; features with
+  // limit > 0 draw from the user's shared credit budget (aiCreditsLimit, default 3).
+  // This prevents a single scan from permanently blocking the account.
   if (tier === "free") {
+    if (limit === 0) {
+      return { allowed: false, tier, used: 0, limit: 0 }
+    }
     const used = user.aiCreditsUsed
+    const creditLimit = user.aiCreditsLimit
     return {
-      allowed: used < limit,
+      allowed: used < creditLimit,
       tier,
       used,
-      limit,
+      limit: creditLimit,
     }
   }
 
-  // For paid tiers, unlimited or specific limits
+  // Paid tiers get full access to their enabled features
   return {
     allowed: true,
     tier,
