@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       aiCreditsUsed: user.aiCreditsUsed,
       aiCreditsLimit: user.aiCreditsLimit,
       totalScans: user._count.atsScans,
-      lastScore: user.atsScans[0]?.overallScore || null,
+      lastScore: user.atsScans[0]?.overallScore ?? null,
     })
   } catch (error) {
     console.error("Dashboard stats error:", error)

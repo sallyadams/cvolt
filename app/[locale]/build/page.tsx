@@ -83,7 +83,7 @@ export default function BuildPage() {
     const sessionId = params.get("session_id");
 
     // Clean the URL immediately so it doesn't confuse on refresh
-    window.history.replaceState(null, "", "/build");
+    window.history.replaceState(null, "", `/${locale}/build`);
 
     if (payment === "success" && sessionId) {
       handlePaymentReturn(sessionId);
