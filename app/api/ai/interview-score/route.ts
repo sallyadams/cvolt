@@ -7,32 +7,30 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
-const INTERVIEW_READINESS_PROMPT = `You are an expert career coach specializing in interview preparation. Analyze the provided CV and job description to assess the candidate's interview readiness. Provide a comprehensive evaluation including:
+const INTERVIEW_READINESS_PROMPT = `You are an expert career coach specializing in interview preparation. Analyze the provided CV and job description.
 
-1. Overall Interview Readiness Score (0-100)
-2. Category Scores (0-100 each):
-   - Technical Skills
-   - Soft Skills  
-   - Experience
-   - Communication
-   - Cultural Fit
-3. Key Strengths (array of strings)
-4. Areas for Improvement/Weaknesses (array of strings)
-5. Specific Recommendations (array of strings)
-
-Return the response in the following JSON format:
-
+Return ONLY valid JSON (no markdown, no code fences):
 {
-  "overallScore": number,
-  "technicalSkills": number,
-  "softSkills": number,
-  "experience": number,
-  "communication": number,
-  "culturalFit": number,
-  "strengths": ["strength1", "strength2", ...],
-  "weaknesses": ["weakness1", "weakness2", ...],
-  "recommendations": ["rec1", "rec2", ...]
-}`;
+  "overallScore": <0-100>,
+  "technicalSkills": <0-100>,
+  "softSkills": <0-100>,
+  "experience": <0-100>,
+  "communication": <0-100>,
+  "culturalFit": <0-100>,
+  "strengths": ["strength1", "strength2", "strength3"],
+  "weaknesses": ["weakness1", "weakness2", "weakness3"],
+  "recommendations": ["rec1", "rec2", "rec3"],
+  "likely_questions": [
+    {
+      "question": "<specific interview question tailored to this CV and job>",
+      "suggested_answer": "<concise suggested answer drawing on the candidate's actual experience from their CV, 2-4 sentences>",
+      "tip": "<short coaching tip for delivering this answer well>"
+    }
+  ]
+}
+
+Generate 6 likely_questions that are specific to this candidate's background and this job's requirements.
+Mix behavioral (STAR method), technical, and situational questions.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,46 +38,56 @@ export async function POST(request: NextRequest) {
     if (authResult instanceof NextResponse) return authResult;
 
     const { userId } = authResult;
-    const { cvId, jobId } = await request.json();
+    const { cvId, jobId, jobDescription } = await request.json();
 
-    if (!cvId || !jobId) {
+    if (!cvId || (!jobId && !jobDescription)) {
       return NextResponse.json(
-        { error: 'CV ID and Job ID are required' },
+        { error: 'CV ID and either a Job ID or job description text are required' },
         { status: 400 }
       );
     }
 
-    // Fetch CV and job data
     const cv = await prisma.cVDocument.findFirst({
       where: { id: cvId, userId },
     });
-
-    const job = await prisma.jobDescription.findFirst({
-      where: { id: jobId, userId },
-    });
-
-    if (!cv || !job) {
-      return NextResponse.json(
-        { error: 'CV or Job not found' },
-        { status: 404 }
-      );
+    if (!cv) {
+      return NextResponse.json({ error: 'CV not found' }, { status: 404 });
     }
 
-    // Call Anthropic API
+    let jobText: string;
+    let resolvedJobId: string;
+
+    if (jobId) {
+      const job = await prisma.jobDescription.findFirst({
+        where: { id: jobId, userId },
+      });
+      if (!job) {
+        return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+      }
+      jobText = job.rawText;
+      resolvedJobId = job.id;
+    } else {
+      const job = await prisma.jobDescription.create({
+        data: {
+          userId,
+          title: 'Target Role',
+          company: '—',
+          rawText: jobDescription,
+          extractedKeywords: '[]',
+        },
+      });
+      jobText = jobDescription;
+      resolvedJobId = job.id;
+    }
+
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       temperature: 0.7,
       messages: [
         {
           role: 'user',
-          content: `${INTERVIEW_READINESS_PROMPT}
-
-CV Content:
-${cv.rawText}
-
-Job Description:
-${job.rawText}`,
+          content: `${INTERVIEW_READINESS_PROMPT}\n\nCV Content:\n${cv.rawText}\n\nJob Description:\n${jobText}`,
         },
       ],
     });
@@ -91,21 +99,18 @@ ${job.rawText}`,
 
     let parsedResult;
     try {
-      parsedResult = JSON.parse(result.text);
-    } catch (parseError) {
+      const text = result.text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
+      parsedResult = JSON.parse(text);
+    } catch {
       console.error('Failed to parse AI response:', result.text);
-      return NextResponse.json(
-        { error: 'Failed to parse AI response' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
     }
 
-    // Save to database
     const interviewScore = await prisma.interviewScore.create({
       data: {
         userId,
         cvId,
-        jobId,
+        jobId: resolvedJobId,
         overallScore: parsedResult.overallScore,
         technicalSkills: parsedResult.technicalSkills,
         softSkills: parsedResult.softSkills,
@@ -118,34 +123,47 @@ ${job.rawText}`,
       },
     });
 
-    // Track analytics
+    // Store Q&A separately in generatedDocument so the results page can retrieve it
+    if (parsedResult.likely_questions?.length) {
+      await prisma.generatedDocument.create({
+        data: {
+          userId,
+          cvId,
+          jobId: resolvedJobId,
+          type: 'interview_questions',
+          content: JSON.stringify(parsedResult.likely_questions),
+        },
+      });
+    }
+
     await prisma.analyticsEvent.create({
       data: {
         userId,
         eventName: 'interview_readiness_generated',
-        properties: JSON.stringify({ cvId, jobId, scoreId: interviewScore.id }),
+        properties: JSON.stringify({ cvId, jobId: resolvedJobId, scoreId: interviewScore.id }),
       },
     });
 
-    // Update user credits
     await prisma.user.update({
       where: { id: userId },
-      data: {
-        aiCreditsUsed: {
-          increment: 1,
-        },
-      },
+      data: { aiCreditsUsed: { increment: 1 } },
     });
 
     return NextResponse.json({
       id: interviewScore.id,
-      ...parsedResult,
+      overallScore: parsedResult.overallScore,
+      technicalSkills: parsedResult.technicalSkills,
+      softSkills: parsedResult.softSkills,
+      experience: parsedResult.experience,
+      communication: parsedResult.communication,
+      culturalFit: parsedResult.culturalFit,
+      strengths: parsedResult.strengths,
+      weaknesses: parsedResult.weaknesses,
+      recommendations: parsedResult.recommendations,
+      likelyQuestions: parsedResult.likely_questions ?? [],
     });
   } catch (error) {
     console.error('Interview readiness error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

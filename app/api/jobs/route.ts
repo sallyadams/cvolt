@@ -10,7 +10,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { title, company, raw_text } = await req.json()
+    const body = await req.json()
+    const raw_text = body.raw_text ?? body.description ?? ""
+    const { title, company } = body
     if (!raw_text) {
       return NextResponse.json({ error: "Job description text is required" }, { status: 400 })
     }
@@ -66,11 +68,20 @@ export async function GET(req: NextRequest) {
         id: true,
         title: true,
         company: true,
+        extractedKeywords: true,
         createdAt: true,
       },
     })
 
-    return NextResponse.json(jobs)
+    return NextResponse.json(
+      jobs.map((job) => ({
+        ...job,
+        keywords: (() => {
+          try { return JSON.parse(job.extractedKeywords ?? "[]") } catch { return [] }
+        })(),
+        extractedKeywords: undefined,
+      }))
+    )
   } catch (error) {
     console.error("Get jobs error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

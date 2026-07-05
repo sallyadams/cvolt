@@ -9,11 +9,15 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const cvs = await prisma.cVDocument.findMany({
-    where: { userId: session.user.id, isActive: true },
-    select: { id: true, title: true, createdAt: true, version: true },
-    orderBy: { createdAt: "desc" },
-  })
-
-  return NextResponse.json(cvs)
+  try {
+    const cvs = await prisma.cVDocument.findMany({
+      where: { userId: session.user.id, isActive: true },
+      select: { id: true, title: true, createdAt: true, version: true },
+      orderBy: { createdAt: "desc" },
+    })
+    return NextResponse.json(cvs)
+  } catch (error) {
+    console.error("[/api/cv GET] Database error:", error)
+    return NextResponse.json({ error: "Failed to fetch CVs" }, { status: 500 })
+  }
 }

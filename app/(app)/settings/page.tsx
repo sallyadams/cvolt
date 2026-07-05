@@ -8,9 +8,9 @@ import Link from 'next/link';
 interface User {
   id: string;
   email: string;
-  name?: string;
-  tier: string;
-  creditsUsed: number;
+  fullName?: string;
+  subscriptionTier: string;
+  aiCreditsUsed: number;
   createdAt: string;
 }
 
@@ -27,6 +27,7 @@ export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [stats, setStats] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -70,6 +71,23 @@ export default function SettingsPage() {
     router.push('/upgrade');
   };
 
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/billing/portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Could not open billing portal');
+      }
+    } catch {
+      alert('Something went wrong');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' });
   };
@@ -106,7 +124,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name</label>
-                <p className="mt-1 text-gray-900">{user?.name || 'Not set'}</p>
+                <p className="mt-1 text-gray-900">{user?.fullName || 'Not set'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Member Since</label>
@@ -118,13 +136,16 @@ export default function SettingsPage() {
                 <label className="block text-sm font-medium text-gray-700">Current Plan</label>
                 <div className="mt-1 flex items-center">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    user?.tier === 'premium'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
+                    user?.subscriptionTier === 'premium' ? 'bg-yellow-100 text-yellow-800'
+                    : user?.subscriptionTier === 'pro' ? 'bg-purple-100 text-purple-800'
+                    : user?.subscriptionTier === 'starter' ? 'bg-blue-100 text-blue-800'
+                    : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {user?.tier === 'premium' ? 'Premium' : 'Free'}
+                    {user?.subscriptionTier
+                      ? user.subscriptionTier.charAt(0).toUpperCase() + user.subscriptionTier.slice(1)
+                      : 'Free'}
                   </span>
-                  {user?.tier !== 'premium' && (
+                  {(user?.subscriptionTier ?? 'free') === 'free' && (
                     <button
                       onClick={handleUpgrade}
                       className="ml-2 text-blue-600 hover:text-blue-500 text-sm"
@@ -160,7 +181,7 @@ export default function SettingsPage() {
             </div>
             <div className="mt-4 pt-4 border-t">
               <p className="text-sm text-gray-600">
-                Credits Used: <span className="font-medium">{user?.creditsUsed || 0}</span>
+                Credits Used: <span className="font-medium">{user?.aiCreditsUsed ?? 0}</span>
               </p>
             </div>
           </div>
@@ -168,17 +189,25 @@ export default function SettingsPage() {
           {/* Billing */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Billing & Subscription</h2>
-            {user?.tier === 'premium' ? (
+            {(user?.subscriptionTier ?? 'free') !== 'free' ? (
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-gray-900">Premium Plan - Active</span>
+                  <span className="text-gray-900">
+                    {user?.subscriptionTier
+                      ? user.subscriptionTier.charAt(0).toUpperCase() + user.subscriptionTier.slice(1)
+                      : 'Paid'} Plan — Active
+                  </span>
                   <span className="text-green-600 font-medium">✓ Active</span>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">
-                  You have unlimited access to all premium features.
+                  You have access to all features included in your plan.
                 </p>
-                <button className="text-blue-600 hover:text-blue-500 text-sm">
-                  Manage Subscription →
+                <button
+                  onClick={handleManageSubscription}
+                  disabled={portalLoading}
+                  className="text-blue-600 hover:text-blue-500 text-sm disabled:opacity-50"
+                >
+                  {portalLoading ? 'Opening…' : 'Manage Subscription →'}
                 </button>
               </div>
             ) : (
@@ -188,13 +217,13 @@ export default function SettingsPage() {
                   <span className="text-gray-600">Limited features</span>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">
-                  Upgrade to Premium for unlimited access to all features.
+                  Upgrade for unlimited AI operations, cover letters, interview prep, and more.
                 </p>
                 <button
                   onClick={handleUpgrade}
                   className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                  Upgrade to Premium
+                  Upgrade to Pro
                 </button>
               </div>
             )}

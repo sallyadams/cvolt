@@ -7,8 +7,8 @@ import Link from 'next/link';
 
 interface CVDocument {
   id: string;
-  filename: string;
-  content: string;
+  title: string;
+  rawText: string;
   version: number;
   createdAt: string;
 }
@@ -17,7 +17,6 @@ interface CVVersion {
   id: string;
   version: number;
   content: string;
-  filename: string;
   createdAt: string;
 }
 
@@ -52,7 +51,7 @@ export default function CVEditorPage() {
       if (response.ok) {
         const cvData = await response.json();
         setCv(cvData);
-        setEditedContent(cvData.content);
+        setEditedContent(cvData.rawText ?? '');
       } else {
         router.push('/cv');
       }
@@ -145,7 +144,7 @@ export default function CVEditorPage() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Edit CV</h1>
               <p className="mt-2 text-gray-600">
-                {cv.filename} (Version {cv.version})
+                {cv.title} (Version {cv.version})
               </p>
             </div>
             <div className="flex space-x-3">

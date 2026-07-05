@@ -3,48 +3,36 @@ import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
 
-interface CVExperience {
-  title?: string
-  bullets?: string[]
-}
-
-interface CVData {
-  experience?: CVExperience[]
-}
-
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuthAndFeature("bullets")
     if (auth instanceof NextResponse) return auth
     const { userId } = auth
 
-    const { cv_id, section } = await req.json()
-    if (!cv_id) {
-      return NextResponse.json({ error: "CV ID is required" }, { status: 400 })
-    }
+    const body = await req.json()
 
-    // Get CV data
-    const cv = await prisma.cVDocument.findFirst({
-      where: { id: cv_id, userId },
-    })
-    if (!cv) {
-      return NextResponse.json({ error: "CV not found" }, { status: 404 })
-    }
+    // Accept either freeform bullets array or a cv_id to extract from
+    let bullets: string[] = []
 
-    // Extract bullets from CV
-    let parsedCV: CVData
-    try {
-      parsedCV = JSON.parse(cv.parsedJson)
-    } catch {
-      return NextResponse.json({ error: "Invalid CV data" }, { status: 400 })
+    if (Array.isArray(body.bullets) && body.bullets.length > 0) {
+      bullets = body.bullets.map((b: string) => String(b).trim()).filter(Boolean)
+    } else if (body.cv_id) {
+      const cv = await prisma.cVDocument.findFirst({
+        where: { id: body.cv_id, userId },
+      })
+      if (!cv) {
+        return NextResponse.json({ error: "CV not found" }, { status: 404 })
+      }
+      try {
+        const parsed = JSON.parse(cv.parsedJson)
+        bullets = parsed.experience?.flatMap((exp: { bullets?: string[] }) => exp.bullets ?? []) ?? []
+      } catch {
+        return NextResponse.json({ error: "Invalid CV data" }, { status: 400 })
+      }
     }
-
-    const bullets = section
-      ? parsedCV.experience?.find((exp) => exp.title?.toLowerCase().includes(section.toLowerCase()))?.bullets || []
-      : parsedCV.experience?.flatMap((exp) => exp.bullets) || []
 
     if (!bullets.length) {
-      return NextResponse.json({ error: "No bullets found" }, { status: 400 })
+      return NextResponse.json({ error: "No bullet points provided" }, { status: 400 })
     }
 
     const apiKey = process.env.ANTHROPIC_API_KEY
@@ -76,7 +64,7 @@ Return ONLY valid JSON:
     const userMessage = `Improve these CV bullet points:\n\n${bullets.join("\n")}`
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
@@ -95,13 +83,15 @@ Return ONLY valid JSON:
       return NextResponse.json({ error: "Failed to improve bullets" }, { status: 500 })
     }
 
+    const cvId: string | null = body.cv_id ?? null
+
     // Save improvements
     const improvements = await Promise.all(
-      result.improvements.map((imp: any) =>
+      result.improvements.map((imp: { original: string; improved: string; rationale: string }) =>
         prisma.bulletImprovement.create({
           data: {
             userId,
-            cvId: cv_id,
+            cvId,
             originalBullet: imp.original,
             improvedBullet: imp.improved,
             improvementRationale: imp.rationale,
@@ -124,13 +114,16 @@ Return ONLY valid JSON:
       },
     })
 
+    const mapped = improvements.map((imp) => ({
+      id: imp.id,
+      original: imp.originalBullet,
+      improved: imp.improvedBullet,
+      explanation: imp.improvementRationale,
+    }))
+
     return NextResponse.json({
-      improvements: improvements.map((imp) => ({
-        id: imp.id,
-        original: imp.originalBullet,
-        improved: imp.improvedBullet,
-        rationale: imp.improvementRationale,
-      })),
+      improvedBullets: mapped,
+      improvements: mapped,
     })
   } catch (error) {
     console.error("Bullet improver error:", error)

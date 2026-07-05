@@ -180,7 +180,7 @@ export default function JobMatcherPage() {
                         <h3 className="font-medium text-gray-900">{job.title}</h3>
                         <p className="text-sm text-gray-600">{job.company}</p>
                         <p className="text-sm text-gray-500 mt-1">
-                          Keywords: {job.keywords.join(', ')}
+                          Keywords: {(job.keywords ?? []).join(', ') || '—'}
                         </p>
                       </div>
                       <button

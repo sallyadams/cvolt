@@ -1,194 +1,212 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import {
+  ResultCard,
+  CopyButton,
+  TextBlock,
+  Pill,
+  EmptyState,
+  LoadingState,
+  SectionLabel,
+} from '@/components/ResultCard'
 
-interface CVDocument {
-  id: string;
-  filename: string;
+interface CVDocument { id: string; title: string }
+
+interface LinkedInResult {
+  summary: string
+  headlineSuggestions: string[]
+  keywords: string[]
+  experienceSection: string
+  skillsSection: string
+  characterCount: number
 }
 
 export default function LinkedInSummaryPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [cvs, setCvs] = useState<CVDocument[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [selectedCvId, setSelectedCvId] = useState('');
-  const [summary, setSummary] = useState('');
+  const { status } = useSession()
+  const router = useRouter()
+
+  const [cvs, setCvs]         = useState<CVDocument[]>([])
+  const [loading, setLoading] = useState(true)
+  const [generating, setGenerating] = useState(false)
+
+  const [selectedCvId, setSelectedCvId] = useState('')
+  const [targetRole, setTargetRole]     = useState('')
+  const [result, setResult]             = useState<LinkedInResult | null>(null)
+  const [error, setError]               = useState('')
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-      return;
-    }
-
+    if (status === 'unauthenticated') { router.push('/login'); return }
     if (status === 'authenticated') {
-      fetchCVs();
+      fetch('/api/cv')
+        .then(r => r.ok ? r.json() : [])
+        .then(setCvs)
+        .catch(() => {})
+        .finally(() => setLoading(false))
     }
-  }, [status, router]);
-
-  const fetchCVs = async () => {
-    try {
-      const response = await fetch('/api/cv');
-      if (response.ok) {
-        const cvsData = await response.json();
-        setCvs(cvsData);
-      }
-    } catch (error) {
-      console.error('Failed to fetch CVs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [status, router])
 
   const handleGenerate = async () => {
-    if (!selectedCvId) return;
-
-    setGenerating(true);
+    if (!selectedCvId) return
+    setGenerating(true); setError(''); setResult(null)
     try {
-      const response = await fetch('/api/ai/linkedin-summary', {
+      const res = await fetch('/api/ai/linkedin-summary', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ cvId: selectedCvId }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSummary(data.summary);
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to generate LinkedIn summary');
-      }
-    } catch (error) {
-      console.error('Failed to generate summary:', error);
-      alert('Failed to generate LinkedIn summary');
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(summary);
-    alert('Summary copied to clipboard!');
-  };
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cvId: selectedCvId, targetRole: targetRole.trim() || undefined }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || 'Generation failed'); return }
+      setResult(data)
+    } catch { setError('Something went wrong. Please try again.') }
+    finally { setGenerating(false) }
+  }
 
   if (status === 'loading' || loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><LoadingState message="Loading…" subMessage="" /></div>
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">LinkedIn Summary Generator</h1>
-          <p className="mt-2 text-gray-600">
-            Create an engaging, professional LinkedIn summary that showcases your expertise
-          </p>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+
+        <div className="mb-7">
+          <h1 className="text-3xl font-bold text-gray-900">LinkedIn Profile Optimizer</h1>
+          <p className="mt-1.5 text-gray-500 text-sm">Headline · About · Experience highlights · Skills — all optimized for visibility.</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Input */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Generate Summary
-            </h2>
+        {/* Input */}
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mb-6">
+          <h2 className="font-semibold text-gray-900 mb-4">Generate Profile</h2>
 
-            <div className="space-y-4">
-              {/* CV Selection */}
-              <div>
-                <label htmlFor="cv" className="block text-sm font-medium text-gray-700 mb-2">
-                  Your CV
-                </label>
-                <select
-                  id="cv"
-                  value={selectedCvId}
-                  onChange={(e) => setSelectedCvId(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                >
-                  <option value="">Select a CV...</option>
-                  {cvs.map((cv) => (
-                    <option key={cv.id} value={cv.id}>
-                      {cv.filename}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <button
-                onClick={handleGenerate}
-                disabled={!selectedCvId || generating}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Your CV</label>
+              <select
+                value={selectedCvId}
+                onChange={e => setSelectedCvId(e.target.value)}
+                className="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 bg-white"
               >
-                {generating ? 'Generating...' : 'Generate LinkedIn Summary'}
-              </button>
+                <option value="">Select a CV…</option>
+                {cvs.map(cv => <option key={cv.id} value={cv.id}>{cv.title}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Target Role <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={targetRole}
+                onChange={e => setTargetRole(e.target.value)}
+                placeholder="e.g. Senior Product Manager"
+                className="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+              />
             </div>
           </div>
 
-          {/* Results */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Your LinkedIn Summary</h2>
-              {summary && (
-                <button
-                  onClick={handleCopy}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm"
-                >
-                  Copy
-                </button>
-              )}
-            </div>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2.5 rounded-xl mb-4">{error}</div>
+          )}
 
-            {summary ? (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-gray-800 leading-relaxed">
-                  {summary}
-                </p>
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500">
-                  Select your CV and click "Generate LinkedIn Summary" to create an optimized profile summary.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Tips */}
-        <div className="mt-8 bg-blue-50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">LinkedIn Summary Tips</h3>
-          <ul className="text-blue-800 space-y-1 text-sm">
-            <li>• Keep it between 40-60 words for optimal engagement</li>
-            <li>• Start with a hook that grabs attention</li>
-            <li>• Highlight your unique value proposition</li>
-            <li>• Include relevant keywords for searchability</li>
-            <li>• End with a call to action or connection invitation</li>
-            <li>• Use first person and conversational tone</li>
-          </ul>
-        </div>
-
-        {/* Navigation */}
-        <div className="mt-8 flex justify-center">
-          <Link
-            href="/"
-            className="text-blue-600 hover:text-blue-500"
+          <button
+            onClick={handleGenerate}
+            disabled={!selectedCvId || generating}
+            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            ← Back to Dashboard
-          </Link>
+            {generating ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Generating full profile…
+              </span>
+            ) : 'Generate LinkedIn Profile'}
+          </button>
         </div>
+
+        {/* Generating */}
+        {generating && (
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm">
+            <LoadingState message="Optimizing your LinkedIn profile…" subMessage="Writing headline options, About section, experience and skills" />
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!generating && !result && (
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm">
+            <EmptyState
+              icon="💼"
+              title="Your LinkedIn profile will appear here"
+              description="Select your CV and click Generate to get your full profile upgrade."
+            />
+          </div>
+        )}
+
+        {/* Results */}
+        {result && !generating && (
+          <div className="space-y-4">
+
+            {/* Headline options */}
+            {result.headlineSuggestions?.length > 0 && (
+              <ResultCard title="Headline Options" icon="🏷" badge="Pick one" badgeColor="indigo">
+                <div className="space-y-2">
+                  {result.headlineSuggestions.map((h, i) => (
+                    <div key={i} className="flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 gap-3">
+                      <span className="text-sm text-gray-800 font-medium">{h}</span>
+                      <CopyButton text={h} />
+                    </div>
+                  ))}
+                </div>
+              </ResultCard>
+            )}
+
+            {/* About section */}
+            <ResultCard
+              title="About Section"
+              icon="📝"
+              badge={result.characterCount ? `${result.characterCount} chars` : undefined}
+              badgeColor="gray"
+              copyText={result.summary}
+            >
+              <TextBlock text={result.summary} />
+            </ResultCard>
+
+            {/* Keywords */}
+            {result.keywords?.length > 0 && (
+              <ResultCard title="Keywords to Include" icon="🔑" copyText={result.keywords.join(', ')} copyLabel="Copy all">
+                <div>
+                  <SectionLabel color="indigo">Add these to your profile for better search visibility</SectionLabel>
+                  <div className="flex flex-wrap gap-2">
+                    {result.keywords.map((kw, i) => <Pill key={i} label={kw} color="indigo" />)}
+                  </div>
+                </div>
+              </ResultCard>
+            )}
+
+            {/* Experience highlights */}
+            {result.experienceSection && (
+              <ResultCard title="Experience Highlights" icon="💼" copyText={result.experienceSection}>
+                <TextBlock text={result.experienceSection} tint="indigo" />
+              </ResultCard>
+            )}
+
+            {/* Skills */}
+            {result.skillsSection && (
+              <ResultCard title="Optimized Skills List" icon="🛠" copyText={result.skillsSection}>
+                <TextBlock text={result.skillsSection} tint="green" />
+              </ResultCard>
+            )}
+
+            <button
+              onClick={() => setResult(null)}
+              className="w-full py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              ← Generate another
+            </button>
+          </div>
+        )}
       </div>
     </div>
-  );
+  )
 }

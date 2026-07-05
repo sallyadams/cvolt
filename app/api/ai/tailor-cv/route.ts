@@ -3,6 +3,41 @@ import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
 
+function cvTextFromParsed(parsedJson: string): string {
+  try {
+    const p = JSON.parse(parsedJson)
+    const lines: string[] = []
+    if (p.personal?.name) lines.push(p.personal.name)
+    if (p.personal?.email) lines.push(p.personal.email)
+    if (p.summary) lines.push("\nSUMMARY\n" + p.summary)
+    if (p.experience?.length) {
+      lines.push("\nEXPERIENCE")
+      for (const exp of p.experience) {
+        lines.push(`${exp.title ?? ""} at ${exp.company ?? ""} (${exp.dates ?? exp.period ?? ""})`)
+        if (exp.bullets?.length) lines.push(...exp.bullets.map((b: string) => `• ${b}`))
+      }
+    }
+    if (p.education?.length) {
+      lines.push("\nEDUCATION")
+      for (const edu of p.education) {
+        lines.push(`${edu.degree ?? ""} — ${edu.institution ?? ""} (${edu.dates ?? ""})`)
+      }
+    }
+    if (p.skills) {
+      const skills = [
+        ...(Array.isArray(p.skills) ? p.skills : []),
+        ...(p.skills.technical || []),
+        ...(p.skills.soft || []),
+        ...(p.skills.tools || []),
+      ]
+      if (skills.length) lines.push("\nSKILLS\n" + skills.join(", "))
+    }
+    return lines.filter(Boolean).join("\n").trim()
+  } catch {
+    return ""
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuthAndFeature("tailored_cvs")
@@ -50,7 +85,7 @@ Return ONLY valid JSON with the same structure as the input CV JSON, with modifi
     const userMessage = `JOB DESCRIPTION:\n${job.rawText}\n\nORIGINAL CV JSON:\n${cv.parsedJson}`
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
@@ -63,18 +98,19 @@ Return ONLY valid JSON with the same structure as the input CV JSON, with modifi
 
     let result
     try {
-      result = JSON.parse(parsedContent.text)
-    } catch (err) {
+      const text = parsedContent.text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim()
+      result = JSON.parse(text)
+    } catch {
       console.error("Failed to parse AI response:", parsedContent.text)
       return NextResponse.json({ error: "Failed to tailor CV" }, { status: 500 })
     }
 
-    // Save tailored CV as new version
+    // Save tailored CV as new version — rawText must be readable text, not JSON
     const tailoredCV = await prisma.cVDocument.create({
       data: {
         userId,
         title: `${cv.title} (Tailored for ${job.title})`,
-        rawText: JSON.stringify(result), // Store tailored version as raw text
+        rawText: cvTextFromParsed(JSON.stringify(result)) || JSON.stringify(result),
         parsedJson: JSON.stringify(result),
         version: (cv.version || 1) + 1,
       },
@@ -103,10 +139,14 @@ Return ONLY valid JSON with the same structure as the input CV JSON, with modifi
       },
     })
 
+    let originalCV: unknown = null
+    try { originalCV = JSON.parse(cv.parsedJson) } catch { /* ignore */ }
+
     return NextResponse.json({
       cvId: tailoredCV.id,
       docId: doc.id,
       tailoredCV: result,
+      originalCV,
     })
   } catch (error) {
     console.error("Tailor CV error:", error)

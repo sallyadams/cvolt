@@ -9,14 +9,13 @@ export async function POST(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
     const { userId } = auth
 
-    const { cv_id, target_role } = await req.json()
-    if (!cv_id) {
+    const { cvId, targetRole } = await req.json()
+    if (!cvId) {
       return NextResponse.json({ error: "CV ID is required" }, { status: 400 })
     }
 
-    // Get CV data
     const cv = await prisma.cVDocument.findFirst({
-      where: { id: cv_id, userId },
+      where: { id: cvId, userId },
     })
     if (!cv) {
       return NextResponse.json({ error: "CV not found" }, { status: 404 })
@@ -29,23 +28,22 @@ export async function POST(req: NextRequest) {
 
     const anthropic = new Anthropic({ apiKey })
 
-    // Use exact prompt from Part 6.7
-    const systemPrompt = `You are a LinkedIn profile optimization expert. Write a first-person LinkedIn summary.
-Rules: Max 2,600 characters. Start with a hook (not "I am a..."). 
-Include: who you are, what you do, what makes you different, what you're looking for.
-End with a soft CTA. Use line breaks for readability. Sound human and confident.
-Return ONLY valid JSON:
+    const systemPrompt = `You are a LinkedIn profile optimization expert. Write a complete, compelling LinkedIn profile upgrade for this candidate.
+Rules: Sound human and confident, not AI-generated. Use first person. No clichés like "passionate professional".
+Return ONLY valid JSON (no markdown, no code fences):
 {
-  "summary": "",
-  "headline_suggestions": [""],
-  "keywords_included": [],
+  "summary": "<first-person LinkedIn About section, max 2600 chars, starts with a hook not 'I am a...', includes who you are, what you do, what makes you different, ends with a soft call to action>",
+  "headline_suggestions": ["<headline option 1>", "<headline option 2>", "<headline option 3>"],
+  "keywords_included": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
+  "experience_section": "<rewritten experience highlights — for each job, 2-3 achievement-focused bullets using action verbs and quantified results where possible>",
+  "skills_section": "<comma-separated prioritized skills list optimized for searchability and ATS>",
   "character_count": 0
 }`
 
-    const userMessage = `CV:\n${cv.rawText}\n\nTARGET ROLE/INDUSTRY: ${target_role || "open to opportunities"}`
+    const userMessage = `CV:\n${cv.rawText}\n\nTARGET ROLE/INDUSTRY: ${targetRole || "open to opportunities"}`
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
@@ -58,37 +56,40 @@ Return ONLY valid JSON:
 
     let result
     try {
-      result = JSON.parse(parsedContent.text)
-    } catch (err) {
+      const text = parsedContent.text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim()
+      result = JSON.parse(text)
+    } catch {
       console.error("Failed to parse AI response:", parsedContent.text)
-      return NextResponse.json({ error: "Failed to generate LinkedIn summary" }, { status: 500 })
+      return NextResponse.json({ error: "Failed to generate LinkedIn profile" }, { status: 500 })
     }
 
-    // Save generated document
     const doc = await prisma.generatedDocument.create({
       data: {
         userId,
-        cvId: cv_id,
+        cvId,
         type: "linkedin_summary",
         content: JSON.stringify(result),
       },
     })
 
-    // Increment AI credits for free users
     await incrementAICredits(userId)
 
-    // Track analytics
     await prisma.analyticsEvent.create({
       data: {
         userId,
         eventName: "linkedin_summary_generated",
-        properties: JSON.stringify({ targetRole: target_role }),
+        properties: JSON.stringify({ targetRole }),
       },
     })
 
     return NextResponse.json({
       docId: doc.id,
-      ...result,
+      summary: result.summary,
+      headlineSuggestions: result.headline_suggestions ?? [],
+      keywords: result.keywords_included ?? [],
+      experienceSection: result.experience_section ?? "",
+      skillsSection: result.skills_section ?? "",
+      characterCount: result.character_count ?? 0,
     })
   } catch (error) {
     console.error("LinkedIn summary error:", error)

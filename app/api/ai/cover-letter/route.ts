@@ -9,24 +9,46 @@ export async function POST(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
     const { userId } = auth
 
-    const { cv_id, job_id, tone } = await req.json()
-    if (!cv_id || !job_id) {
-      return NextResponse.json({ error: "CV ID and Job ID are required" }, { status: 400 })
+    const { cvId, jobId, jobDescription, tone } = await req.json()
+    if (!cvId || (!jobId && !jobDescription)) {
+      return NextResponse.json(
+        { error: "CV ID and either a Job ID or job description text are required" },
+        { status: 400 }
+      )
     }
 
-    // Get CV and job data
     const cv = await prisma.cVDocument.findFirst({
-      where: { id: cv_id, userId },
+      where: { id: cvId, userId },
     })
     if (!cv) {
       return NextResponse.json({ error: "CV not found" }, { status: 404 })
     }
 
-    const job = await prisma.jobDescription.findFirst({
-      where: { id: job_id, userId },
-    })
-    if (!job) {
-      return NextResponse.json({ error: "Job not found" }, { status: 404 })
+    let jobText: string
+    let resolvedJobId: string
+
+    if (jobId) {
+      const job = await prisma.jobDescription.findFirst({
+        where: { id: jobId, userId },
+      })
+      if (!job) {
+        return NextResponse.json({ error: "Job not found" }, { status: 404 })
+      }
+      jobText = job.rawText
+      resolvedJobId = job.id
+    } else {
+      // Auto-create a job record from pasted text
+      const job = await prisma.jobDescription.create({
+        data: {
+          userId,
+          title: "Target Role",
+          company: "—",
+          rawText: jobDescription,
+          extractedKeywords: "[]",
+        },
+      })
+      jobText = jobDescription
+      resolvedJobId = job.id
     }
 
     const apiKey = process.env.ANTHROPIC_API_KEY
@@ -36,24 +58,24 @@ export async function POST(req: NextRequest) {
 
     const anthropic = new Anthropic({ apiKey })
 
-    // Use exact prompt from Part 6.6
     const systemPrompt = `You are an expert cover letter writer. Write a compelling, genuine cover letter.
-Rules: No clichés ("I am writing to express my interest"). No generic openers. 
+Rules: No clichés ("I am writing to express my interest"). No generic openers.
 Start with a hook that shows knowledge of the company or role.
-Keep it to 3 paragraphs. Make it sound human, not AI-generated.
-Return ONLY valid JSON:
+Make it sound human, not AI-generated.
+Return ONLY valid JSON (no markdown, no code fences):
 {
-  "subject_line": "",
-  "cover_letter": "",
-  "tone_used": "",
-  "key_selling_points_used": [""],
-  "personalization_elements": [""]
+  "subject_line": "Re: [Role] Application — [Candidate Name]",
+  "cover_letter": "<full 3-paragraph professional cover letter>",
+  "short_version": "<concise 1-paragraph summary version, 100-130 words>",
+  "closing_paragraph": "<strong standalone closing paragraph with clear call to action>",
+  "key_selling_points_used": ["point1", "point2", "point3"],
+  "personalization_elements": ["element1", "element2"]
 }`
 
-    const userMessage = `JOB DESCRIPTION:\n${job.rawText}\n\nCANDIDATE CV:\n${cv.rawText}\n\nTONE PREFERENCE: ${tone || "professional but personable"}`
+    const userMessage = `JOB DESCRIPTION:\n${jobText}\n\nCANDIDATE CV:\n${cv.rawText}\n\nTONE PREFERENCE: ${tone || "professional but personable"}`
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
@@ -66,38 +88,41 @@ Return ONLY valid JSON:
 
     let result
     try {
-      result = JSON.parse(parsedContent.text)
-    } catch (err) {
+      const text = parsedContent.text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim()
+      result = JSON.parse(text)
+    } catch {
       console.error("Failed to parse AI response:", parsedContent.text)
       return NextResponse.json({ error: "Failed to generate cover letter" }, { status: 500 })
     }
 
-    // Save generated document
     const doc = await prisma.generatedDocument.create({
       data: {
         userId,
-        cvId: cv_id,
-        jobId: job_id,
+        cvId,
+        jobId: resolvedJobId,
         type: "cover_letter",
         content: JSON.stringify(result),
       },
     })
 
-    // Increment AI credits for free users
     await incrementAICredits(userId)
 
-    // Track analytics
     await prisma.analyticsEvent.create({
       data: {
         userId,
         eventName: "cover_letter_generated",
-        properties: JSON.stringify({ jobId: job_id }),
+        properties: JSON.stringify({ jobId: resolvedJobId }),
       },
     })
 
     return NextResponse.json({
       docId: doc.id,
-      ...result,
+      coverLetter: result.cover_letter,
+      shortVersion: result.short_version,
+      closingParagraph: result.closing_paragraph,
+      subjectLine: result.subject_line,
+      keySellingPoints: result.key_selling_points_used,
+      personalizationElements: result.personalization_elements,
     })
   } catch (error) {
     console.error("Cover letter error:", error)

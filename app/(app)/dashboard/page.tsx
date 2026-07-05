@@ -254,7 +254,7 @@ export default function DashboardPage() {
                   boxShadow: "0 4px 16px rgba(124,92,252,0.4)", flexShrink: 0,
                   whiteSpace: "nowrap",
                 }}>
-                  Upgrade to Pro — €9/mo
+                  Upgrade to Pro — €7/mo
                 </Link>
               </div>
             )}
