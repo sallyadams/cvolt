@@ -26,6 +26,33 @@ export default function JobMatcherPage() {
     description: '',
   });
 
+  const [importUrl, setImportUrl]     = useState('');
+  const [importing, setImporting]     = useState(false);
+  const [importError, setImportError] = useState('');
+
+  const handleImportUrl = async () => {
+    if (!importUrl.trim()) return;
+    setImporting(true); setImportError('');
+    try {
+      const res = await fetch('/api/jobs/import-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: importUrl.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setImportError("We couldn't import this job post. Please paste the description manually.");
+        return;
+      }
+      setFormData(prev => ({ ...prev, description: data.text }));
+      setImportUrl('');
+    } catch {
+      setImportError("We couldn't import this job post. Please paste the description manually.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
@@ -137,6 +164,31 @@ export default function JobMatcherPage() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
+              </div>
+
+              {/* URL import */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Import from job URL <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <div className="mt-1 flex gap-2">
+                  <input
+                    type="url"
+                    value={importUrl}
+                    onChange={(e) => { setImportUrl(e.target.value); setImportError(''); }}
+                    placeholder="https://www.linkedin.com/jobs/view/…"
+                    className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleImportUrl}
+                    disabled={!importUrl.trim() || importing}
+                    className="bg-gray-100 text-gray-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {importing ? 'Importing…' : 'Import'}
+                  </button>
+                </div>
+                {importError && <p className="text-red-600 text-xs mt-1">{importError}</p>}
               </div>
 
               <div>

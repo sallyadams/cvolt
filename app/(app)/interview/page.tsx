@@ -90,6 +90,34 @@ export default function InterviewReadinessPage() {
   const [inlineResult, setInlineResult]             = useState<InlineResult | null>(null)
   const [error, setError]                           = useState('')
 
+  const [importUrl, setImportUrl]     = useState('')
+  const [importing, setImporting]     = useState(false)
+  const [importError, setImportError] = useState('')
+
+  const handleImportUrl = async () => {
+    if (!importUrl.trim()) return
+    setImporting(true); setImportError('')
+    try {
+      const res = await fetch('/api/jobs/import-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: importUrl.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setImportError("We couldn't import this job post. Please paste the description manually.")
+        return
+      }
+      setJobDescriptionText(data.text)
+      setSelectedJobId('')
+      setImportUrl('')
+    } catch {
+      setImportError("We couldn't import this job post. Please paste the description manually.")
+    } finally {
+      setImporting(false)
+    }
+  }
+
   useEffect(() => {
     if (status === 'unauthenticated') { router.push('/login'); return }
     if (status === 'authenticated') {
@@ -180,6 +208,31 @@ export default function InterviewReadinessPage() {
                   </select>
                 </div>
               )}
+
+              {/* URL import */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Import from job URL <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={importUrl}
+                    onChange={e => { setImportUrl(e.target.value); setImportError('') }}
+                    placeholder="https://www.linkedin.com/jobs/view/…"
+                    className="flex-1 rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleImportUrl}
+                    disabled={!importUrl.trim() || importing}
+                    className="bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
+                  >
+                    {importing ? 'Importing…' : 'Import'}
+                  </button>
+                </div>
+                {importError && <p className="text-red-600 text-xs mt-1.5">{importError}</p>}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
