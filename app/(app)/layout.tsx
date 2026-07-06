@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/match", icon: "🎯", label: "Job Match" },
   { href: "/tracker", icon: "📊", label: "Applications" },
   { href: "/interview", icon: "🎤", label: "Interview Prep" },
+  { href: "/tailor", icon: "🪄", label: "AI Tailoring" },
   { href: "/optimizer", icon: "⚡", label: "CV Optimizer" },
   { href: "/bullets", icon: "✨", label: "Bullet Improver" },
   { href: "/cover-letter", icon: "📝", label: "Cover Letter" },
