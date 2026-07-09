@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 interface CVDocument {
   id: string;
-  filename: string;
+  title: string | null;
   createdAt: string;
 }
 
@@ -15,15 +15,17 @@ interface JobDescription {
   id: string;
   title: string;
   company: string;
-  description: string;
+  rawText: string;
 }
 
 interface MatchResult {
   matchScore: number;
   matchedKeywords: string[];
   missingKeywords: string[];
-  skillsAnalysis: string;
-  experienceAssessment: string;
+  skillsMatch: string;
+  experienceMatch: string;
+  strengths: string[];
+  weaknesses: string[];
   recommendations: string[];
   interviewLikelihood: string;
 }
@@ -40,6 +42,7 @@ export default function JobMatchPage() {
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [matching, setMatching] = useState(false);
+  const [matchError, setMatchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -79,6 +82,7 @@ export default function JobMatchPage() {
     if (!selectedCvId) return;
 
     setMatching(true);
+    setMatchError(null);
     try {
       const response = await fetch('/api/jobs/match', {
         method: 'POST',
@@ -88,16 +92,16 @@ export default function JobMatchPage() {
         body: JSON.stringify({ jobId, cvId: selectedCvId }),
       });
 
+      const data = await response.json().catch(() => ({}));
+
       if (response.ok) {
-        const result = await response.json();
-        setMatchResult(result);
+        setMatchResult(data);
       } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to match CV');
+        setMatchError(data.error || 'Failed to match CV. Please try again.');
       }
     } catch (error) {
       console.error('Failed to match CV:', error);
-      alert('Failed to match CV');
+      setMatchError('Network error. Please check your connection and try again.');
     } finally {
       setMatching(false);
     }
@@ -171,7 +175,7 @@ export default function JobMatchPage() {
                         className="mr-3"
                       />
                       <label htmlFor={cv.id} className="flex-1 cursor-pointer">
-                        <div className="font-medium text-gray-900">{cv.filename}</div>
+                        <div className="font-medium text-gray-900">{cv.title || 'Untitled CV'}</div>
                         <div className="text-sm text-gray-500">
                           Uploaded {new Date(cv.createdAt).toLocaleDateString()}
                         </div>
@@ -187,6 +191,15 @@ export default function JobMatchPage() {
                 >
                   {matching ? 'Matching...' : 'Match CV'}
                 </button>
+
+                {matchError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-start gap-2">
+                    <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-sm text-red-700">{matchError}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -198,12 +211,12 @@ export default function JobMatchPage() {
             </h2>
             {matchResult ? (
               <div className="space-y-6">
-                {/* Match Score */}
+                {/* ATS Match Score */}
                 <div className="text-center">
                   <div className="text-4xl font-bold text-blue-600">
                     {matchResult.matchScore}%
                   </div>
-                  <p className="text-gray-600">Match Score</p>
+                  <p className="text-gray-600">ATS Match Score</p>
                   <div className="mt-2">
                     <span className={`px-2 py-1 rounded-full text-sm ${
                       matchResult.interviewLikelihood === 'High'
@@ -221,11 +234,15 @@ export default function JobMatchPage() {
                 <div>
                   <h3 className="font-medium text-gray-900 mb-2">Matched Keywords</h3>
                   <div className="flex flex-wrap gap-2">
-                    {matchResult.matchedKeywords.map((keyword, index) => (
-                      <span key={index} className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
-                        {keyword}
-                      </span>
-                    ))}
+                    {matchResult.matchedKeywords.length === 0 ? (
+                      <p className="text-sm text-gray-500">None found.</p>
+                    ) : (
+                      matchResult.matchedKeywords.map((keyword, index) => (
+                        <span key={index} className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
+                          {keyword}
+                        </span>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -233,29 +250,53 @@ export default function JobMatchPage() {
                 <div>
                   <h3 className="font-medium text-gray-900 mb-2">Missing Keywords</h3>
                   <div className="flex flex-wrap gap-2">
-                    {matchResult.missingKeywords.map((keyword, index) => (
-                      <span key={index} className="bg-red-100 text-red-800 px-2 py-1 rounded text-sm">
-                        {keyword}
-                      </span>
-                    ))}
+                    {matchResult.missingKeywords.length === 0 ? (
+                      <p className="text-sm text-gray-500">None — great coverage!</p>
+                    ) : (
+                      matchResult.missingKeywords.map((keyword, index) => (
+                        <span key={index} className="bg-red-100 text-red-800 px-2 py-1 rounded text-sm">
+                          {keyword}
+                        </span>
+                      ))
+                    )}
                   </div>
                 </div>
 
-                {/* Skills Analysis */}
+                {/* Skills Match */}
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Skills Analysis</h3>
-                  <p className="text-gray-700">{matchResult.skillsAnalysis}</p>
+                  <h3 className="font-medium text-gray-900 mb-2">Skills Match</h3>
+                  <p className="text-gray-700">{matchResult.skillsMatch}</p>
                 </div>
 
-                {/* Experience Assessment */}
+                {/* Experience Match */}
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Experience Assessment</h3>
-                  <p className="text-gray-700">{matchResult.experienceAssessment}</p>
+                  <h3 className="font-medium text-gray-900 mb-2">Experience Match</h3>
+                  <p className="text-gray-700">{matchResult.experienceMatch}</p>
                 </div>
 
-                {/* Recommendations */}
+                {/* Strengths */}
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Recommendations</h3>
+                  <h3 className="font-medium text-gray-900 mb-2">Strengths</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    {matchResult.strengths.map((s, index) => (
+                      <li key={index} className="text-gray-700">{s}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Weaknesses */}
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Weaknesses</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    {matchResult.weaknesses.map((w, index) => (
+                      <li key={index} className="text-gray-700">{w}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Recommended Improvements */}
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Recommended Improvements</h3>
                   <ul className="list-disc list-inside space-y-1">
                     {matchResult.recommendations.map((rec, index) => (
                       <li key={index} className="text-gray-700">{rec}</li>
