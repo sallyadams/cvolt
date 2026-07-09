@@ -121,6 +121,36 @@ export async function requireAuth(
   return { userId: session.user.id }
 }
 
+export async function requireEmployerAuth(): Promise<
+  { userId: string; companyId: string } | NextResponse
+> {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  if (session.user.role !== "employer") {
+    return NextResponse.json(
+      { error: "This action requires an employer account" },
+      { status: 403 }
+    )
+  }
+
+  const company = await prisma.company.findUnique({
+    where: { ownerId: session.user.id },
+    select: { id: true },
+  })
+
+  if (!company) {
+    return NextResponse.json(
+      { error: "No company profile found for this employer account" },
+      { status: 404 }
+    )
+  }
+
+  return { userId: session.user.id, companyId: company.id }
+}
+
 export async function requireAuthAndFeature(
   feature: keyof TierLimits
 ): Promise<{ userId: string } | NextResponse> {

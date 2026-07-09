@@ -68,7 +68,7 @@ export const authOptions: NextAuthOptions = {
           const isValid = await bcrypt.compare(credentials.password, user.passwordHash)
           if (!isValid) return null
 
-          return { id: user.id, email: user.email, name: user.fullName }
+          return { id: user.id, email: user.email, name: user.fullName, role: user.role }
         } catch (err) {
           console.error("[auth] authorize error:", err)
           return null
@@ -81,11 +81,17 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id
+      if (user) {
+        token.id = user.id
+        token.role = user.role
+      }
       return token
     },
     async session({ session, token }) {
-      if (token) session.user.id = token.id as string
+      if (token) {
+        session.user.id = token.id as string
+        session.user.role = (token.role as string) ?? "job_seeker"
+      }
       return session
     },
   },

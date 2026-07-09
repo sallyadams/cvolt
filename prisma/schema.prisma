@@ -24,6 +24,7 @@ model User {
   subscriptionEndDate   DateTime?
   aiCreditsUsed         Int      @default(0)
   aiCreditsLimit        Int      @default(3) // free tier gets 3 AI operations/month
+  role                  String   @default("job_seeker") // 'job_seeker' | 'employer'
 
   // Relations
   cvDocuments           CVDocument[]
@@ -37,6 +38,8 @@ model User {
   analyticsEvents       AnalyticsEvent[]
   accounts              Account[]
   sessions              Session[]
+  company               Company?
+  jobApplications       JobApplication[]
 
   @@map("users")
 }
@@ -62,6 +65,7 @@ model CVDocument {
   generatedDocuments GeneratedDocument[]
   applications Application[]
   versions    CVVersion[]
+  jobApplications JobApplication[]
 
   @@map("cv_documents")
 }
@@ -228,6 +232,68 @@ model AnalyticsEvent {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("analytics_events")
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  ownerId     String   @unique
+  name        String
+  logoUrl     String?
+  website     String?
+  description String?
+  industry    String?
+  location    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  // Relations
+  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  jobPostings JobPosting[]
+
+  @@map("companies")
+}
+
+model JobPosting {
+  id              String   @id @default(cuid())
+  companyId       String
+  title           String
+  description     String
+  location        String?
+  remote          Boolean  @default(false)
+  employmentType  String?  // 'full_time' | 'part_time' | 'contract' | 'internship'
+  experienceLevel String?  // 'entry' | 'mid' | 'senior' | 'lead'
+  salaryMin       Int?
+  salaryMax       Int?
+  salaryCurrency  String   @default("EUR")
+  requiredSkills  String   @default("[]") // JSON string array
+  status          String   @default("draft") // 'draft' | 'published' | 'closed'
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+
+  // Relations
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  jobApplications JobApplication[]
+
+  @@map("job_postings")
+}
+
+model JobApplication {
+  id           String   @id @default(cuid())
+  jobPostingId String
+  userId       String
+  cvId         String?
+  coverLetter  String?
+  status       String   @default("applied") // 'applied' | 'shortlisted' | 'interview' | 'offer' | 'rejected'
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+
+  // Relations
+  jobPosting   JobPosting  @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  applicant    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvDocument   CVDocument? @relation(fields: [cvId], references: [id])
+
+  @@unique([jobPostingId, userId])
+  @@map("job_applications")
 }
 
 model Account {
