@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs"
 
 const secret = process.env.NEXTAUTH_SECRET
 if (!secret && process.env.NODE_ENV === "production") {
-  console.error(
+  throw new Error(
     "[auth] NEXTAUTH_SECRET is not set. " +
     "Add it to your Vercel environment variables. " +
     "Generate one with: openssl rand -hex 32"
@@ -30,8 +30,8 @@ const googleEnabled =
   !!process.env.GOOGLE_CLIENT_SECRET?.trim()
 
 export const authOptions: NextAuthOptions = {
-  // Provide secret explicitly so NextAuth never crashes with "no secret".
-  // In production this MUST be a strong random string from env.
+  // The throw above guarantees `secret` is set whenever NODE_ENV is
+  // production, so this fallback is only ever reached in local dev.
   secret: secret || "dev-only-fallback-not-safe-for-production",
 
   // Only attach the Prisma adapter when Google OAuth is configured (the
@@ -84,7 +84,25 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id
         token.role = user.role
+        token.roleRefreshedAt = Date.now()
+        return token
       }
+
+      // Role is baked into the JWT at sign-in and would otherwise never
+      // change until the user logs out and back in. Re-check it against
+      // the DB at most once every 5 minutes so a role change (e.g. a
+      // job_seeker promoted to employer) takes effect promptly without
+      // adding a DB read to every single request.
+      const lastRefresh = (token.roleRefreshedAt as number | undefined) ?? 0
+      if (token.id && Date.now() - lastRefresh > 5 * 60 * 1000) {
+        const current = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        })
+        if (current) token.role = current.role
+        token.roleRefreshedAt = Date.now()
+      }
+
       return token
     },
     async session({ session, token }) {
