@@ -27,23 +27,17 @@ const COLUMNS = [
   { id: "rejected", label: "Rejected", icon: "❌", color: "#fee2e2", accent: "#dc2626" },
 ]
 
-const DEMO_APPS: Application[] = [
-  { id: "1", company: "Innovate Studio", jobTitle: "UI/UX Designer", status: "interview", appliedDate: "2025-04-20", notes: "3rd round interview scheduled", nextAction: "Prepare portfolio" },
-  { id: "2", company: "TechNova", jobTitle: "Product Designer", status: "screening", appliedDate: "2025-04-22", notes: "HR call went well", nextAction: "Technical interview" },
-  { id: "3", company: "Creatix Labs", jobTitle: "Visual Designer", status: "applied", appliedDate: "2025-04-25" },
-  { id: "4", company: "BuildFast", jobTitle: "Frontend Dev", status: "offer", appliedDate: "2025-04-15", notes: "Offer received: €60k", nextAction: "Negotiate salary" },
-  { id: "5", company: "GrowthLab", jobTitle: "Marketing Manager", status: "rejected", appliedDate: "2025-04-10", notes: "Not a good fit" },
-  { id: "6", company: "ScaleUp", jobTitle: "Product Manager", status: "saved" },
-]
-
 export default function TrackerPage() {
   const { status } = useSession()
   const router = useRouter()
-  const [apps, setApps] = useState<Application[]>(DEMO_APPS)
+  const [apps, setApps] = useState<Application[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState<string | null>(null)
   const [selected, setSelected] = useState<Application | null>(null)
   const [showAdd, setShowAdd] = useState(false)
+  const [adding, setAdding] = useState(false)
   const [newApp, setNewApp] = useState({ company: "", jobTitle: "", status: "saved" })
 
   useEffect(() => {
@@ -52,19 +46,52 @@ export default function TrackerPage() {
 
   useEffect(() => {
     if (status !== "authenticated") return
-    fetch("/api/applications").then(r => r.ok ? r.json() : null).then(data => { if (data?.length) setApps(data) }).catch(() => {})
+    fetch("/api/applications")
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => setApps(Array.isArray(data) ? data : []))
+      .catch(() => setError("Couldn't load your applications. Try refreshing the page."))
+      .finally(() => setLoading(false))
   }, [status])
 
   const byStatus = (colId: string) => apps.filter(a => a.status === colId)
 
-  const moveApp = (id: string, newStatus: string) =>
+  const moveApp = async (id: string, newStatus: string) => {
+    const previous = apps
     setApps(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a))
+    setError(null)
+    try {
+      const res = await fetch(`/api/applications/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      setApps(previous)
+      setError("Couldn't update that application's status. Please try again.")
+    }
+  }
 
-  const addApp = () => {
+  const addApp = async () => {
     if (!newApp.company || !newApp.jobTitle) return
-    setApps(prev => [...prev, { ...newApp, id: Date.now().toString() }])
-    setNewApp({ company: "", jobTitle: "", status: "saved" })
-    setShowAdd(false)
+    setAdding(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newApp),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Failed to add application")
+      setApps(prev => [...prev, data])
+      setNewApp({ company: "", jobTitle: "", status: "saved" })
+      setShowAdd(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add application")
+    } finally {
+      setAdding(false)
+    }
   }
 
   const totalActive = apps.filter(a => !["saved", "rejected"].includes(a.status)).length
@@ -96,9 +123,28 @@ export default function TrackerPage() {
             ) : null
           })}
         </div>
+
+        {error && (
+          <div style={{ marginTop: 16, background: "#fee2e2", color: "#b91c1c", padding: "10px 14px", borderRadius: 8, fontSize: 13 }}>
+            {error}
+          </div>
+        )}
       </div>
 
       {/* Kanban board */}
+      {loading ? (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: gray600, fontSize: 14 }}>
+          Loading your applications…
+        </div>
+      ) : apps.length === 0 ? (
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, color: gray600 }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: gray900 }}>No applications yet</div>
+          <div style={{ fontSize: 13 }}>Add one to start tracking your job search.</div>
+          <button onClick={() => setShowAdd(true)} style={{ marginTop: 8, background: purple, color: white, border: "none", borderRadius: 10, padding: "10px 20px", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+            + Add Application
+          </button>
+        </div>
+      ) : (
       <div style={{ flex: 1, overflowX: "auto", padding: "24px 20px" }}>
         <div style={{ display: "flex", gap: 16, minWidth: "max-content", height: "100%" }}>
           {COLUMNS.map(col => (
@@ -164,6 +210,7 @@ export default function TrackerPage() {
           ))}
         </div>
       </div>
+      )}
 
       {/* Add Application modal */}
       {showAdd && (
@@ -194,8 +241,8 @@ export default function TrackerPage() {
               </div>
             </div>
             <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
-              <button onClick={() => setShowAdd(false)} style={{ flex: 1, background: "#f1f5f9", color: gray900, border: "none", borderRadius: 10, padding: "12px", fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-              <button onClick={addApp} style={{ flex: 1, background: purple, color: white, border: "none", borderRadius: 10, padding: "12px", fontWeight: 700, cursor: "pointer" }}>Add</button>
+              <button onClick={() => setShowAdd(false)} disabled={adding} style={{ flex: 1, background: "#f1f5f9", color: gray900, border: "none", borderRadius: 10, padding: "12px", fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+              <button onClick={addApp} disabled={adding} style={{ flex: 1, background: purple, color: white, border: "none", borderRadius: 10, padding: "12px", fontWeight: 700, cursor: adding ? "default" : "pointer", opacity: adding ? 0.7 : 1 }}>{adding ? "Adding…" : "Add"}</button>
             </div>
           </div>
         </div>
