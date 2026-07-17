@@ -40,6 +40,7 @@ export default function ProfilePage() {
   const [skillInput, setSkillInput] = useState("")
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const completedSteps = [
     !!(profile.fullName && profile.jobTitle),
     !!profile.summary,
@@ -52,6 +53,30 @@ export default function ProfilePage() {
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login")
   }, [status, router])
+
+  useEffect(() => {
+    if (status !== "authenticated") return
+    fetch("/api/profile")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data) return
+        setProfile({
+          fullName: data.fullName ?? "",
+          jobTitle: data.jobTitle ?? "",
+          location: data.location ?? "",
+          phone: data.phone ?? "",
+          linkedin: data.linkedin ?? "",
+          website: data.website ?? "",
+          summary: data.summary ?? "",
+          skills: Array.isArray(data.skills) ? data.skills : [],
+          experience: Array.isArray(data.experience) && data.experience.length
+            ? data.experience : EMPTY_PROFILE.experience,
+          education: Array.isArray(data.education) && data.education.length
+            ? data.education : EMPTY_PROFILE.education,
+        })
+      })
+      .catch(() => setError("Couldn't load your saved profile."))
+  }, [status])
 
   const update = (key: keyof ProfileData, value: unknown) =>
     setProfile(p => ({ ...p, [key]: value }))
@@ -72,13 +97,19 @@ export default function ProfilePage() {
   const updateEdu = (i: number, key: string, val: string) =>
     update("education", profile.education.map((e, idx) => idx === i ? { ...e, [key]: val } : e))
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<boolean> => {
     setSaving(true)
+    setError(null)
     try {
-      await fetch("/api/profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(profile) })
+      const res = await fetch("/api/profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(profile) })
+      if (!res.ok) throw new Error()
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-    } catch { /* silent */ } finally {
+      return true
+    } catch {
+      setError("Couldn't save your profile. Please try again.")
+      return false
+    } finally {
       setSaving(false)
     }
   }
@@ -100,6 +131,12 @@ export default function ProfilePage() {
           <h1 style={{ fontSize: 28, fontWeight: 800, color: gray900, margin: "0 0 4px", letterSpacing: "-0.03em" }}>Your Profile</h1>
           <p style={{ color: gray600, fontSize: 15, margin: 0 }}>Build a strong profile to power your job applications.</p>
         </div>
+
+        {error && (
+          <div style={{ background: "#fee2e2", color: "#b91c1c", padding: "10px 14px", borderRadius: 8, fontSize: 13, marginBottom: 20 }}>
+            {error}
+          </div>
+        )}
 
         {/* Profile strength bar */}
         <div style={{ background: white, borderRadius: 16, padding: "20px 24px", marginBottom: 28, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1px solid #f0f0f0" }}>
@@ -307,7 +344,7 @@ export default function ProfilePage() {
                     </button>
                   )}
                   {step === STEPS.length - 1 && (
-                    <button onClick={() => { handleSave(); router.push("/cv"); }}
+                    <button onClick={async () => { if (await handleSave()) router.push("/cv") }}
                       style={{ background: purple, color: white, border: "none", borderRadius: 10, padding: "12px 24px", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
                       Save & Continue →
                     </button>
