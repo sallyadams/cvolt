@@ -12,9 +12,11 @@ const white = "#ffffff"
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: "🏠", label: "Dashboard", exact: true },
+  { href: "/coach", icon: "🧠", label: "Career Coach" },
   { href: "/cv", icon: "📄", label: "My CVs" },
   { href: "/scan", icon: "🔍", label: "ATS Scanner" },
   { href: "/match", icon: "🎯", label: "Job Match" },
+  { href: "/job-board", icon: "🧭", label: "Job Board" },
   { href: "/tracker", icon: "📊", label: "Applications" },
   { href: "/interview", icon: "🎤", label: "Interview Prep" },
   { href: "/tailor", icon: "🪄", label: "AI Tailoring" },
