@@ -204,6 +204,12 @@ export default function CVPage() {
                     >
                       ATS Scan
                     </Link>
+                    <Link
+                      href={`/recruiter-scan/${cv.id}`}
+                      className="flex-1 bg-indigo-600 text-white text-center py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      Recruiter Scan
+                    </Link>
                   </div>
                 </div>
               ))}

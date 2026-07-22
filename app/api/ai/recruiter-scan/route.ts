@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
+import { resolveCvText } from "@/lib/cv-text"
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,6 +21,14 @@ export async function POST(req: NextRequest) {
     })
     if (!cv) {
       return NextResponse.json({ error: "CV not found" }, { status: 404 })
+    }
+
+    const cvText = resolveCvText(cv)
+    if (!cvText) {
+      return NextResponse.json(
+        { error: "CV content could not be read. Please re-upload your CV." },
+        { status: 422 }
+      )
     }
 
     const apiKey = process.env.ANTHROPIC_API_KEY
@@ -48,7 +57,7 @@ Return ONLY valid JSON:
   "top_3_improvements": [{ "what": "", "why": "", "example": "" }]
 }`
 
-    const userMessage = `Review this CV as a recruiter:\n\n${cv.rawText}`
+    const userMessage = `Review this CV as a recruiter:\n\n${cvText}`
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
@@ -64,8 +73,9 @@ Return ONLY valid JSON:
 
     let result
     try {
-      result = JSON.parse(parsedContent.text)
-    } catch (err) {
+      const text = parsedContent.text.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim()
+      result = JSON.parse(text)
+    } catch {
       console.error("Failed to parse AI response:", parsedContent.text)
       return NextResponse.json({ error: "Failed to analyze CV" }, { status: 500 })
     }

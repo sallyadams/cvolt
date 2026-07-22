@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { prisma } from "@/lib/prisma"
+import { resolveCvText } from "@/lib/cv-text"
 
 function safeParse(json: string) {
   try { return JSON.parse(json) } catch { return null }
@@ -52,10 +53,10 @@ export async function executeCoachTool(userId: string, name: string, input: unkn
       if (!cvId) return { error: "cvId is required" }
       const cv = await prisma.cVDocument.findFirst({
         where: { id: cvId, userId },
-        select: { title: true, rawText: true },
+        select: { title: true, rawText: true, parsedJson: true },
       })
       if (!cv) return { error: "CV not found" }
-      return { title: cv.title, content: cv.rawText.slice(0, 6000) }
+      return { title: cv.title, content: resolveCvText(cv).slice(0, 6000) }
     }
 
     case "get_latest_ats_scan": {

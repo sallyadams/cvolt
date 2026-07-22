@@ -13,6 +13,7 @@ import {
   LoadingState,
   SectionLabel,
 } from "@/components/ResultCard"
+import { CaseForHireCTA } from "@/components/CaseForHireCTA"
 
 interface Fix {
   fix: string
@@ -343,6 +344,12 @@ export default function ScanResultsPage() {
             Optimize My CV →
           </button>
         </div>
+
+        {/* ── Case for Hire CTA ── */}
+        <CaseForHireCTA
+          cvId={cvId}
+          description="Applying to a specific role? Build a structured, evidence-based case for why this CV fits it."
+        />
 
         {/* ── Bottom nav ── */}
         <div className="flex gap-3 pb-4">

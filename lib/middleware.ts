@@ -13,6 +13,7 @@ export interface TierLimits {
   interview_scores: number
   job_matcher: number
   career_coach_messages: number
+  case_for_hire: number
 }
 
 export const TIER_LIMITS: Record<string, TierLimits> = {
@@ -26,6 +27,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     interview_scores: 0,
     job_matcher: 0,
     career_coach_messages: 0,
+    case_for_hire: 0,
   },
   starter: {
     ats_scans: 5,
@@ -37,6 +39,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     interview_scores: 3,
     job_matcher: 3,
     career_coach_messages: 10,
+    case_for_hire: 2,
   },
   pro: {
     ats_scans: 20,
@@ -48,6 +51,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     interview_scores: 10,
     job_matcher: 10,
     career_coach_messages: 50,
+    case_for_hire: 10,
   },
   premium: {
     ats_scans: Infinity,
@@ -59,6 +63,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     interview_scores: Infinity,
     job_matcher: Infinity,
     career_coach_messages: Infinity,
+    case_for_hire: Infinity,
   },
 }
 

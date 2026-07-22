@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireAuthAndFeature } from '@/lib/middleware';
 import { prisma } from '@/lib/prisma';
+import { resolveCvText } from '@/lib/cv-text';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -54,6 +55,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'CV not found' }, { status: 404 });
     }
 
+    const cvText = resolveCvText(cv);
+    if (!cvText) {
+      return NextResponse.json(
+        { error: 'CV content could not be read. Please re-upload your CV.' },
+        { status: 422 }
+      );
+    }
+
     let jobText: string;
     let resolvedJobId: string;
 
@@ -87,7 +96,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'user',
-          content: `${INTERVIEW_READINESS_PROMPT}\n\nCV Content:\n${cv.rawText}\n\nJob Description:\n${jobText}`,
+          content: `${INTERVIEW_READINESS_PROMPT}\n\nCV Content:\n${cvText}\n\nJob Description:\n${jobText}`,
         },
       ],
     });

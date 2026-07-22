@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { CaseForHireCTA } from "@/components/CaseForHireCTA"
 
 const purple = "#7c5cfc"
 const navy = "#0a0e27"
@@ -128,6 +129,9 @@ export default function CoachPage() {
           >
             + New conversation
           </button>
+        </div>
+        <div style={{ padding: "0 16px 12px" }}>
+          <CaseForHireCTA variant="compact" />
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: "0 8px" }}>
           {conversations.map((c) => (

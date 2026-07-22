@@ -2,50 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
+import { resolveCvText } from "@/lib/cv-text"
 
 function stripCodeFences(text: string): string {
   return text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim()
-}
-
-function cvTextFromParsed(parsedJson: string): string {
-  try {
-    const p = JSON.parse(parsedJson)
-    const lines: string[] = []
-    if (p.personal?.name) lines.push(p.personal.name)
-    if (p.personal?.email) lines.push(p.personal.email)
-    if (p.personal?.phone) lines.push(p.personal.phone)
-    if (p.personal?.location) lines.push(p.personal.location)
-    if (p.summary) lines.push("\nSUMMARY\n" + p.summary)
-    if (p.experience?.length) {
-      lines.push("\nEXPERIENCE")
-      for (const exp of p.experience) {
-        lines.push(`${exp.title ?? ""} at ${exp.company ?? ""} (${exp.dates ?? exp.period ?? ""})`)
-        if (exp.bullets?.length) lines.push(...exp.bullets.map((b: string) => `• ${b}`))
-      }
-    }
-    if (p.education?.length) {
-      lines.push("\nEDUCATION")
-      for (const edu of p.education) {
-        lines.push(`${edu.degree ?? ""} — ${edu.institution ?? ""} (${edu.dates ?? ""})`)
-      }
-    }
-    if (p.skills) {
-      const skills = [
-        ...(Array.isArray(p.skills) ? p.skills : []),
-        ...(p.skills.technical ?? []),
-        ...(p.skills.soft ?? []),
-        ...(p.skills.tools ?? []),
-        ...(p.skills.languages ?? []),
-      ]
-      if (skills.length) lines.push("\nSKILLS\n" + skills.join(", "))
-    }
-    if (p.certifications?.length) {
-      lines.push("\nCERTIFICATIONS\n" + p.certifications.join(", "))
-    }
-    return lines.filter(Boolean).join("\n").trim()
-  } catch {
-    return ""
-  }
 }
 
 export async function POST(req: NextRequest) {
@@ -98,10 +58,7 @@ export async function POST(req: NextRequest) {
       resolvedJobId = job.id
     }
 
-    let cvText = cv.rawText ?? ""
-    if (!cvText || cvText.startsWith("[PDF:")) {
-      cvText = cvTextFromParsed(cv.parsedJson ?? "")
-    }
+    const cvText = resolveCvText(cv)
     if (!cvText) {
       return NextResponse.json(
         { error: "CV content could not be read. Please re-upload your CV." },

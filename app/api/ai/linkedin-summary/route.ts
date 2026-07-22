@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
+import { resolveCvText } from "@/lib/cv-text"
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +20,14 @@ export async function POST(req: NextRequest) {
     })
     if (!cv) {
       return NextResponse.json({ error: "CV not found" }, { status: 404 })
+    }
+
+    const cvText = resolveCvText(cv)
+    if (!cvText) {
+      return NextResponse.json(
+        { error: "CV content could not be read. Please re-upload your CV." },
+        { status: 422 }
+      )
     }
 
     const apiKey = process.env.ANTHROPIC_API_KEY
@@ -40,7 +49,7 @@ Return ONLY valid JSON (no markdown, no code fences):
   "character_count": 0
 }`
 
-    const userMessage = `CV:\n${cv.rawText}\n\nTARGET ROLE/INDUSTRY: ${targetRole || "open to opportunities"}`
+    const userMessage = `CV:\n${cvText}\n\nTARGET ROLE/INDUSTRY: ${targetRole || "open to opportunities"}`
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",

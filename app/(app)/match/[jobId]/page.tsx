@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import { CaseForHireCTA } from '@/components/CaseForHireCTA';
 
 interface CVDocument {
   id: string;
@@ -303,6 +304,12 @@ export default function JobMatchPage() {
                     ))}
                   </ul>
                 </div>
+
+                <CaseForHireCTA
+                  cvId={selectedCvId}
+                  jobId={jobId}
+                  description={`Turn this match into a structured argument for why you fit ${job.title} at ${job.company}.`}
+                />
               </div>
             ) : (
               <p className="text-gray-500">

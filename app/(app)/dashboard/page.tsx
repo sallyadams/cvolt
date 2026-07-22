@@ -42,6 +42,7 @@ const QUICK_ACTIONS = [
   { href: "/cover-letter", icon: "📝", label: "Cover Letter", desc: "AI-written letters", color: "#ffedd5", accent: "#ea580c" },
   { href: "/linkedin", icon: "💼", label: "LinkedIn", desc: "Optimize your profile", color: "#e0f2fe", accent: "#0284c7" },
   { href: "/cv", icon: "🔍", label: "ATS Scanner", desc: "Check your ATS score", color: "#f0fdf4", accent: "#15803d" },
+  { href: "/case-for-hire", icon: "⚖️", label: "Case for Hire", desc: "Evidence-based hiring case", color: "#f1f5f9", accent: navy },
 ]
 
 function ScoreCircle({ score }: { score: number | null }) {

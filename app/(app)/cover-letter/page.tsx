@@ -11,11 +11,14 @@ import {
   EmptyState,
   LoadingState,
 } from '@/components/ResultCard'
+import { CaseForHireCTA } from '@/components/CaseForHireCTA'
 
 interface CVDocument { id: string; title: string }
 interface JobDescription { id: string; title: string; company: string }
 
 interface CoverLetterResult {
+  cvId: string
+  jobId: string
   coverLetter: string
   shortVersion: string
   closingParagraph: string
@@ -290,6 +293,12 @@ export default function CoverLetterPage() {
                 <BulletList items={result.keySellingPoints} icon="✓" iconColor="text-green-500" />
               </ResultCard>
             )}
+
+            <CaseForHireCTA
+              cvId={result.cvId}
+              jobId={result.jobId}
+              description="Want a stronger, more direct argument for this role? Build a Case for Hire from the same CV and job."
+            />
 
             {/* Regenerate */}
             <button

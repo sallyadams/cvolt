@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: "/coach", icon: "🧠", label: "Career Coach" },
   { href: "/cv", icon: "📄", label: "My CVs" },
   { href: "/scan", icon: "🔍", label: "ATS Scanner" },
+  { href: "/recruiter-scan", icon: "🕵️", label: "Recruiter Scan" },
   { href: "/match", icon: "🎯", label: "Job Match" },
   { href: "/job-board", icon: "🧭", label: "Job Board" },
   { href: "/tracker", icon: "📊", label: "Applications" },
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: "/bullets", icon: "✨", label: "Bullet Improver" },
   { href: "/cover-letter", icon: "📝", label: "Cover Letter" },
   { href: "/linkedin", icon: "💼", label: "LinkedIn" },
+  { href: "/case-for-hire", icon: "⚖️", label: "Case for Hire" },
 ]
 
 function NavItem({ href, icon, label, exact }: { href: string; icon: string; label: string; exact?: boolean }) {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { CaseForHireCTA } from "@/components/CaseForHireCTA"
 
 const purple = "#7c5cfc"
 const navy = "#0a0e27"
@@ -323,6 +324,9 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   ))}
+                  {overallPct === 100 && (
+                    <CaseForHireCTA description="Your profile is complete. Turn it into a structured, evidence-based case for a specific role." />
+                  )}
                 </div>
               )}
 
