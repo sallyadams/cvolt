@@ -8,6 +8,7 @@ import {
   Pill,
   EmptyState,
   LoadingState,
+  ProgressBar,
 } from '@/components/ResultCard'
 
 // Isolated so useSearchParams() has a Suspense boundary above it
@@ -25,18 +26,24 @@ interface JobDescription { id: string; title: string; company: string }
 
 interface Exhibit {
   letter: string
-  title: string
-  text: string
+  requirement: string
+  claim: string
+  evidence: string
+  impactMetric: string
   source: { type: string; label: string } | null
 }
 
+interface ObjectionHandled {
+  employerConcern: string
+  defenseCounter: string
+}
+
 interface CaseForHireResult {
-  employerProblem: string
-  candidatePosition: string
+  matchScore: number | null
+  openingStatement: string
   exhibits: Exhibit[]
-  potentialObjection: string
-  response: string
-  closingArgument: string
+  objectionsHandled: ObjectionHandled[]
+  closingPitch: string
 }
 
 const SOURCE_COLOR: Record<string, 'indigo' | 'green' | 'blue' | 'orange'> = {
@@ -207,17 +214,29 @@ export default function CaseForHirePage() {
         {result && !generating && (
           <div className="space-y-4">
 
-            <ResultCard title="Employer Problem" icon="🎯">
-              <p className="text-sm text-gray-800 leading-relaxed">{result.employerProblem}</p>
-            </ResultCard>
+            {result.matchScore !== null && (
+              <ResultCard title="Match Score" icon="📈">
+                <ProgressBar label="Contextual match" value={result.matchScore} />
+              </ResultCard>
+            )}
 
-            <ResultCard title="Candidate Position" icon="🧭">
-              <p className="text-sm text-gray-800 leading-relaxed">{result.candidatePosition}</p>
+            <ResultCard title="Opening Statement" icon="🎯">
+              <p className="text-sm text-gray-800 leading-relaxed">{result.openingStatement}</p>
             </ResultCard>
 
             {result.exhibits.map(ex => (
-              <ResultCard key={ex.letter} title={`Exhibit ${ex.letter} — ${ex.title}`} icon="📁">
-                <p className="text-sm text-gray-800 leading-relaxed mb-3">{ex.text}</p>
+              <ResultCard key={ex.letter} title={`Exhibit ${ex.letter}`} icon="📁">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Requirement</p>
+                <p className="text-sm text-gray-700 leading-relaxed mb-3">{ex.requirement}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Claim</p>
+                <p className="text-sm text-gray-800 leading-relaxed mb-3">{ex.claim}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Evidence</p>
+                <p className="text-sm text-gray-800 leading-relaxed mb-3">{ex.evidence}</p>
+                {ex.impactMetric && (
+                  <div className="mb-3">
+                    <Pill label={`Impact: ${ex.impactMetric}`} color="blue" />
+                  </div>
+                )}
                 {ex.source ? (
                   <Pill label={`Source: ${ex.source.label}`} color={SOURCE_COLOR[ex.source.type] ?? 'gray'} />
                 ) : (
@@ -226,16 +245,23 @@ export default function CaseForHirePage() {
               </ResultCard>
             ))}
 
-            <ResultCard title="Potential Objection" icon="⚠️" tint="amber">
-              <p className="text-sm text-gray-800 leading-relaxed">{result.potentialObjection}</p>
-            </ResultCard>
+            {result.objectionsHandled.length > 0 && (
+              <ResultCard title="Objections Handled" icon="⚠️" tint="amber">
+                <div className="space-y-4">
+                  {result.objectionsHandled.map((o, i) => (
+                    <div key={i} className={i > 0 ? "pt-4 border-t border-amber-100" : ""}>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-amber-600 mb-1">Employer Concern</p>
+                      <p className="text-sm text-gray-800 leading-relaxed mb-2">{o.employerConcern}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-green-600 mb-1">Defense Counter</p>
+                      <p className="text-sm text-gray-800 leading-relaxed">{o.defenseCounter}</p>
+                    </div>
+                  ))}
+                </div>
+              </ResultCard>
+            )}
 
-            <ResultCard title="Response" icon="💬">
-              <p className="text-sm text-gray-800 leading-relaxed">{result.response}</p>
-            </ResultCard>
-
-            <ResultCard title="Closing Argument" icon="🏛️" tint="green">
-              <p className="text-sm text-gray-800 leading-relaxed font-medium">{result.closingArgument}</p>
+            <ResultCard title="Closing Pitch" icon="🏛️" tint="green" copyText={result.closingPitch}>
+              <p className="text-sm text-gray-800 leading-relaxed font-medium whitespace-pre-line">{result.closingPitch}</p>
             </ResultCard>
 
             {/* Regenerate */}

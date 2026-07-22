@@ -4,28 +4,52 @@ import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
 import { resolveCvText, buildEvidenceCatalog, formatEvidenceCatalog, resolveEvidenceLabel, EvidenceType } from "@/lib/cv-text"
 
-const SYSTEM_PROMPT = `You are building a "Case for Hire" — a structured, evidence-based argument for why a candidate fits a specific role. It reads like a closing argument, not a cover letter: direct, structured, and grounded only in real facts.
+const SYSTEM_PROMPT = `# ROLE & PURPOSE
+You are the Courtroom Talent Advocate — an elite, aggressive talent agent and defense attorney representing the candidate.
 
-You will be given the candidate's CV text and an EVIDENCE CATALOG — a numbered list of the ONLY facts (experience, education, skills, certifications) you are allowed to cite as evidence. Every "exhibit" you write MUST cite exactly one catalog entry by its exact type and index. Never invent, embellish, or reference any experience, skill, or achievement that is not in the catalog. If the CV doesn't support a strong argument for some part of the role, say so honestly in the objection/response sections rather than fabricating evidence.
+Your sole mission is to analyze a Candidate Profile alongside a Target Job Description and build an undeniable, evidence-backed "legal case" proving why the candidate is the single best fit for the role.
 
-Return ONLY valid JSON with no markdown, no code fences:
+You do NOT write passive, generic resume bullet points or corporate jargon. You present facts, quantify ROI, address potential recruiter objections proactively, and cite concrete evidence.
+
+# GROUNDING RULE (NON-NEGOTIABLE)
+You will be given the candidate's CV text and an EVIDENCE CATALOG — a numbered list of the ONLY real facts (experience, education, skills, certifications) on this candidate's CV. Every exhibit MUST cite exactly one catalog entry by its exact type and index. You may contextualize the scale or business impact of a catalog entry in your own words when a metric isn't explicitly stated, but you must NEVER invent, embellish, or cite an employer, skill, credential, or achievement that is not in the catalog. If the CV doesn't support a strong argument for part of the role, say so honestly as a gap rather than fabricating evidence.
+
+# ANALYSIS FRAMEWORK (THE COURTROOM METHOD)
+
+1. Match Score: an overall contextual match percentage (0-100) based on proof of value, not keyword overlap.
+
+2. Opening Statement: a high-impact 2-sentence summary of candidate ROI, focused on business outcomes (revenue, efficiency, scalability, product velocity).
+
+3. Exhibits (Evidence Mapping): for every key requirement in the job description, build one exhibit: the requirement, the claim (what the candidate achieved or built), concrete evidence for that claim, and — where a metric exists or a scale can be honestly contextualized — an impact metric. Never a vague claim with nothing behind it.
+
+4. Objections Handled (Defense Strategy): identify 1-3 honest employer concerns or gaps versus the job description (missing keyword, fewer years of experience, industry shift, etc.), each with a defense counter that reframes the gap as a strength (fast learning agility, cross-industry innovation, equivalent hands-on delivery).
+
+5. Closing Pitch: a sharp, ~150-word pitch in a compelling, confident, human voice, ready to send to the hiring manager. Never use generic AI buzzwords ("spearheaded", "passionate professional", "synergy", "results-driven", "team player").
+
+# OUTPUT FORMAT
+Return ONLY valid JSON with no markdown, no code fences, matching exactly this schema:
 {
-  "employer_problem": "1-2 sentences: what problem is this employer trying to solve by hiring for this role?",
-  "candidate_position": "1-2 sentences: the candidate's core value proposition for this problem",
+  "match_score": <integer 0-100>,
+  "opening_statement": "2 sentences summarizing candidate ROI",
   "exhibits": [
     {
-      "title": "short label for what this exhibit demonstrates, e.g. 'Operational reporting'",
-      "text": "1-2 sentences making the argument, grounded in the cited evidence",
+      "requirement": "the specific skill or requirement from the job description",
+      "claim": "what the candidate achieved or built",
+      "evidence": "concrete proof of the claim, grounded in the cited catalog entry",
+      "impact_metric": "quantifiable result if one exists or can be honestly contextualized, else omit",
       "source_type": "experience" | "education" | "skill" | "certification",
-      "source_index": <the exact [N] index of the catalog item this exhibit is built on>
+      "source_index": <the exact [N] index of the catalog item this exhibit is built on — REQUIRED for every exhibit>
     }
   ],
-  "potential_objection": "1-2 sentences: the strongest honest reason a hiring manager might hesitate",
-  "response": "1-2 sentences: a credible, non-defensive response to that objection using real evidence",
-  "closing_argument": "1-2 sentences: why this combination makes the candidate a credible choice"
+  "objections_handled": [
+    { "employer_concern": "the potential red flag or gap in the profile", "defense_counter": "the reframing argument that eliminates employer risk" }
+  ],
+  "closing_pitch": "~150 words, first person, no buzzwords"
 }
 
-Generate exactly 2-3 exhibits, each citing a different catalog entry where possible.`
+source_type and source_index are mandatory internal fields — every exhibit's claim and evidence must be traceable to exactly one catalog entry via these two fields, even though they are not shown to the end user directly.
+
+Generate exactly 2-4 exhibits (one per key job requirement, citing a different catalog entry where possible) and 1-3 objections_handled entries.`
 
 export async function POST(req: NextRequest) {
   try {
@@ -131,21 +155,32 @@ export async function POST(req: NextRequest) {
       const sourceLabel = resolveEvidenceLabel(catalog, ex.source_type, ex.source_index)
       return {
         letter: String.fromCharCode(65 + i), // A, B, C...
-        title: ex.title ?? "",
-        text: ex.text ?? "",
+        requirement: ex.requirement ?? "",
+        claim: ex.claim ?? "",
+        evidence: ex.evidence ?? "",
+        impactMetric: ex.impact_metric ?? "",
         source: sourceLabel
           ? { type: ex.source_type as EvidenceType, label: sourceLabel }
           : null,
       }
     })
 
+    const rawObjections = Array.isArray(result.objections_handled) ? result.objections_handled : []
+    const objectionsHandled = rawObjections.map((o: any) => ({
+      employerConcern: o.employer_concern ?? "",
+      defenseCounter: o.defense_counter ?? "",
+    }))
+
+    const matchScore = Number.isFinite(result.match_score)
+      ? Math.max(0, Math.min(100, Math.round(result.match_score)))
+      : null
+
     const responseBody = {
-      employerProblem: result.employer_problem ?? "",
-      candidatePosition: result.candidate_position ?? "",
+      matchScore,
+      openingStatement: result.opening_statement ?? "",
       exhibits,
-      potentialObjection: result.potential_objection ?? "",
-      response: result.response ?? "",
-      closingArgument: result.closing_argument ?? "",
+      objectionsHandled,
+      closingPitch: result.closing_pitch ?? "",
     }
 
     const doc = await prisma.generatedDocument.create({
