@@ -115,6 +115,14 @@ function Eyebrow({ label, light }: { label: string; light?: boolean }) {
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
+const FOOTER_HREFS: Record<string, (locale: string) => string> = {
+  legal: (l) => `/${l}/mentions-legales`,
+  privacy: (l) => `/${l}/confidentialite`,
+  terms: (l) => `/${l}/conditions`,
+  contact: (l) => `/${l}/mentions-legales#contact`,
+  employers: () => "/employer/signup",
+}
+
 export default function LandingPage() {
   const t = useTranslations();
   const locale = useLocale();
@@ -197,8 +205,8 @@ export default function LandingPage() {
               fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: white,
               lineHeight: 1.1, letterSpacing: "-0.04em", marginBottom: 24, marginTop: 0,
             }}>
-              Get Hired with{" "}
-              <span style={{ color: purple }}>cvolt</span>
+              {t("hero.headlineStart")}{" "}
+              <span style={{ color: purple }}>{t("hero.headlineAccent")}</span>
             </h1>
 
             <p style={{ fontSize: 18, color: "rgba(255,255,255,0.65)", lineHeight: 1.7, marginBottom: 36, maxWidth: 500, marginTop: 0 }}>
@@ -258,7 +266,7 @@ export default function LandingPage() {
               ))}
             </div>
             <div style={{ marginTop: 24, padding: "14px 20px", background: "#fff3cd", borderRadius: 12, border: "1px solid #ffd700", fontSize: 15, fontWeight: 600, color: "#92400e" }}>
-              Result: {t("problem.result")}
+              {t("problem.resultLabel")} {t("problem.result")}
             </div>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
@@ -275,7 +283,7 @@ export default function LandingPage() {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <div style={{ width: 280, height: 280, background: `linear-gradient(135deg, ${purpleLight} 0%, #ddd6fe 100%)`, borderRadius: 32, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <span style={{ fontSize: 72, fontWeight: 900, color: purple }}>c<span style={{ color: navy }}>v</span></span>
-              <div style={{ fontSize: 13, color: gray600, fontWeight: 600 }}>Your Career. Our Mission.</div>
+              <div style={{ fontSize: 13, color: gray600, fontWeight: 600 }}>{t("footer.slogan")}</div>
             </div>
           </div>
           <div>
@@ -496,7 +504,7 @@ export default function LandingPage() {
             <blockquote style={{ fontSize: 22, fontWeight: 700, color: white, lineHeight: 1.5, margin: "0 0 24px", fontStyle: "italic" }}>
               {t("vision.quote")}
             </blockquote>
-            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>— cvolt team</div>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{t("vision.signature")}</div>
           </div>
         </div>
       </Section>
@@ -523,7 +531,7 @@ export default function LandingPage() {
               }}>
                 {t("cta.button")}
               </Link>
-              <Link href={`/${locale}/signup`} style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, display: "flex", alignItems: "center", textDecoration: "none" }}>
+              <Link href="/employer/signup" style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, display: "flex", alignItems: "center", textDecoration: "none" }}>
                 {t("cta.employers")} →
               </Link>
             </div>
@@ -533,7 +541,7 @@ export default function LandingPage() {
               <div style={{ fontSize: 56, marginBottom: 12 }}>
                 c<span style={{ color: purple }}>volt</span>
               </div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 24 }}>Your Career. Your Future. Our Mission.</div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 24 }}>{t("footer.tagline")}</div>
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", margin: "0 0 24px" }}>{t("cta.subtitle")}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <Link href={`/${locale}/signup`} style={{
@@ -541,7 +549,7 @@ export default function LandingPage() {
                   background: "#1a1a2e", color: white, padding: "12px 24px", borderRadius: 10,
                   textDecoration: "none", fontWeight: 600, fontSize: 14, border: "1px solid rgba(255,255,255,0.1)",
                 }}>
-                  <span>🚀</span> Start on Web — Free
+                  <span>🚀</span> {t("cta.webButton")}
                 </Link>
               </div>
             </div>
@@ -558,7 +566,7 @@ export default function LandingPage() {
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
             {Object.entries(t.raw("footer.links") as Record<string, string>).map(([key, label]) => (
-              <a key={key} href="#" style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, textDecoration: "none" }}>{label}</a>
+              <a key={key} href={FOOTER_HREFS[key]?.(locale) ?? "#"} style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, textDecoration: "none" }}>{label}</a>
             ))}
           </div>
           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{t("footer.copyright")}</div>

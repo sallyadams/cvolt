@@ -187,6 +187,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
         <main style={{ flex: 1, overflow: "auto" }}>
           {children}
+          <p style={{ fontSize: 12, color: "#94a3b8", textAlign: "center", padding: "24px 16px 32px", margin: 0 }}>
+            🤖 Analyses et textes générés par IA (Claude, Anthropic) — relisez-les avant envoi. · AI-generated content — always review before sending.
+            {" "}<a href="/fr/confidentialite" style={{ color: "#7c5cfc" }}>Confidentialité</a>
+          </p>
         </main>
       </div>
     </div>

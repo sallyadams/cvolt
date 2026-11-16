@@ -9,14 +9,16 @@
     "getStarted": "Commencer gratuitement"
   },
   "hero": {
-    "eyebrow": "Votre moteur de carrière est prêt",
-    "headline": "Trouvez un emploi avec cvolt",
-    "subtitle": "Vos compétences. Les bonnes opportunités. Dans une seule application. Du CV au contrat — en un seul flux.",
+    "eyebrow": "Votre coach carrière IA",
+    "headline": "Transformez votre CV en entretiens",
+    "subtitle": "Score ATS gratuit, CV et lettre adaptés à chaque offre, puis préparation d'entretien avec l'IA. Tout en un.",
     "ctaPrimary": "Commencer gratuitement →",
     "ctaSecondary": "Voir comment ça marche",
     "trust1": "Gratuit pour commencer",
     "trust2": "Propulsé par l'IA",
-    "trust3": "500+ embauches"
+    "trust3": "Score ATS gratuit",
+    "headlineStart": "Transformez votre CV en",
+    "headlineAccent": "entretiens."
   },
   "problem": {
     "eyebrow": "Le Problème",
@@ -27,7 +29,8 @@
       "Pas de guidance sur ce que veulent les employeurs",
       "Candidatures sans retour"
     ],
-    "result": "Les talents restent invisibles."
+    "result": "Les talents restent invisibles.",
+    "resultLabel": "Résultat :"
   },
   "solution": {
     "eyebrow": "La Solution",
@@ -44,21 +47,52 @@
     "eyebrow": "Comment ça marche",
     "title": "4 étapes vers votre prochain emploi",
     "steps": [
-      { "num": "1", "title": "Créez votre profil", "desc": "Construisez un CV solide avec vos compétences, expérience et objectifs." },
-      { "num": "2", "title": "Découvrez des offres", "desc": "Recommandations intelligentes basées sur votre profil." },
-      { "num": "3", "title": "Postulez facilement", "desc": "Postulez en un tap + envoyez des messages personnalisés." },
-      { "num": "4", "title": "Suivez et soyez embauché", "desc": "Suivez vos candidatures et recevez des mises à jour d'entretien." }
+      {
+        "num": "1",
+        "title": "Créez votre profil",
+        "desc": "Construisez un CV solide avec vos compétences, expérience et objectifs."
+      },
+      {
+        "num": "2",
+        "title": "Découvrez des offres",
+        "desc": "Recommandations intelligentes basées sur votre profil."
+      },
+      {
+        "num": "3",
+        "title": "Postulez facilement",
+        "desc": "Postulez en un tap + envoyez des messages personnalisés."
+      },
+      {
+        "num": "4",
+        "title": "Suivez et soyez embauché",
+        "desc": "Suivez vos candidatures et recevez des mises à jour d'entretien."
+      }
     ]
   },
   "whyDifferent": {
     "eyebrow": "Pourquoi cvolt est différent",
     "title": "Tout ce dont vous avez besoin pour réussir",
     "items": [
-      { "title": "Matches personnalisés", "desc": "Pas des emplois au hasard" },
-      { "title": "Rapidité", "desc": "Postulez en secondes" },
-      { "title": "Optimisation IA", "desc": "Votre CV s'améliore automatiquement" },
-      { "title": "Suivi des candidatures", "desc": "Dashboard qui vous tient informé" },
-      { "title": "Connexion directe employeur", "desc": "Soyez remarqué par les bonnes entreprises" }
+      {
+        "title": "Matches personnalisés",
+        "desc": "Pas des emplois au hasard"
+      },
+      {
+        "title": "Rapidité",
+        "desc": "Postulez en secondes"
+      },
+      {
+        "title": "Optimisation IA",
+        "desc": "Votre CV s'améliore automatiquement"
+      },
+      {
+        "title": "Suivi des candidatures",
+        "desc": "Dashboard qui vous tient informé"
+      },
+      {
+        "title": "Connexion directe employeur",
+        "desc": "Soyez remarqué par les bonnes entreprises"
+      }
     ]
   },
   "journey": {
@@ -70,17 +104,34 @@
     },
     "after": {
       "label": "Après cvolt",
-      "steps": ["CV optimisé", "10 candidatures ciblées", "3 entretiens", "1 offre d'emploi"]
+      "steps": [
+        "CV optimisé",
+        "10 candidatures ciblées",
+        "3 entretiens",
+        "1 offre d'emploi"
+      ]
     }
   },
   "users": {
     "eyebrow": "Utilisateurs cibles",
     "title": "Conçu pour chaque étape de carrière",
     "personas": [
-      { "title": "Étudiants & Diplômés", "desc": "Démarrez votre carrière avec confiance" },
-      { "title": "Reconversion professionnelle", "desc": "Changez de carrière avec les bonnes opportunités" },
-      { "title": "Professionnels", "desc": "Faites évoluer votre carrière" },
-      { "title": "Freelances", "desc": "Trouvez la stabilité et augmentez vos revenus" }
+      {
+        "title": "Étudiants & Diplômés",
+        "desc": "Démarrez votre carrière avec confiance"
+      },
+      {
+        "title": "Reconversion professionnelle",
+        "desc": "Changez de carrière avec les bonnes opportunités"
+      },
+      {
+        "title": "Professionnels",
+        "desc": "Faites évoluer votre carrière"
+      },
+      {
+        "title": "Freelances",
+        "desc": "Trouvez la stabilité et augmentez vos revenus"
+      }
     ]
   },
   "pricing": {
@@ -93,7 +144,12 @@
         "price": "€0",
         "period": "pour toujours",
         "desc": "Parfait pour commencer",
-        "features": ["1 CV uploadé", "1 scan ATS", "Matching basique", "Suivi des candidatures"],
+        "features": [
+          "1 CV uploadé",
+          "1 scan ATS",
+          "3 améliorations de points clés",
+          "Suivi des candidatures"
+        ],
         "cta": "Commencer",
         "highlighted": false
       },
@@ -102,7 +158,15 @@
         "price": "€9",
         "period": "par mois",
         "desc": "Pour les chercheurs d'emploi sérieux",
-        "features": ["CV illimités", "Scans ATS illimités", "Optimisation IA", "Matching intelligent", "Préparation entretien", "Générateur de lettre", "Optimiseur LinkedIn", "Support prioritaire"],
+        "features": [
+          "20 scans ATS",
+          "CV adapté à chaque offre",
+          "10 lettres de motivation",
+          "10 entraînements d'entretien",
+          "10 matchings d'offres",
+          "Optimiseur LinkedIn",
+          "Coach carrière IA"
+        ],
         "cta": "Passer Pro",
         "highlighted": true
       },
@@ -110,8 +174,14 @@
         "name": "Premium",
         "price": "€19",
         "period": "par mois",
-        "desc": "Pour des résultats maximaux",
-        "features": ["Tout dans Pro", "Coaching carrière 1-1", "Accès direct recruteurs", "Guide négociation salariale", "Connexion employeurs B2B"],
+        "desc": "Pour une recherche intensive",
+        "features": [
+          "Tout le plan Pro",
+          "Scans ATS et recruteur illimités",
+          "Lettres et CV adaptés illimités",
+          "Entraînements d'entretien illimités",
+          "Coach carrière IA illimité"
+        ],
         "cta": "Passer Premium",
         "highlighted": false
       }
@@ -120,25 +190,37 @@
   "vision": {
     "eyebrow": "Notre Vision",
     "title": "cvolt n'est pas juste une app emploi. C'est un moteur de carrière.",
-    "points": ["De la recherche d'emploi", "À la croissance de carrière", "À la stabilité des revenus"],
-    "quote": "Nous ne vous aidons pas juste à postuler — nous vous aidons à gagner."
+    "points": [
+      "De la recherche d'emploi",
+      "À la croissance de carrière",
+      "À la stabilité des revenus"
+    ],
+    "quote": "Nous ne vous aidons pas juste à postuler — nous vous aidons à gagner.",
+    "signature": "— L'équipe cvolt"
   },
   "cta": {
-    "title": "Téléchargez cvolt aujourd'hui",
-    "subtitle": "Votre prochain emploi est à portée de tap.",
-    "points": ["Construisez votre CV", "Postulez plus intelligemment", "Soyez embauché plus vite"],
+    "title": "Lancez-vous avec cvolt aujourd'hui",
+    "subtitle": "Votre prochain entretien commence ici.",
+    "points": [
+      "Construisez votre CV",
+      "Postulez plus intelligemment",
+      "Soyez embauché plus vite"
+    ],
     "button": "Commencer gratuitement",
-    "employers": "Vous êtes employeur ? Contactez-nous"
+    "employers": "Vous êtes employeur ? Contactez-nous",
+    "webButton": "Commencer sur le web — Gratuit"
   },
   "footer": {
     "tagline": "Votre Carrière. Votre Avenir. Notre Mission.",
-    "copyright": "© 2025 CVolt. Tous droits réservés.",
+    "copyright": "© 2026 cvolt. Tous droits réservés.",
     "links": {
+      "legal": "Mentions légales",
       "privacy": "Politique de confidentialité",
-      "terms": "Conditions d'utilisation",
+      "terms": "Conditions (CGU/CGV)",
       "contact": "Contact",
       "employers": "Pour les employeurs"
-    }
+    },
+    "slogan": "Votre carrière. Notre mission."
   },
   "language": {
     "switch": "Langue",
