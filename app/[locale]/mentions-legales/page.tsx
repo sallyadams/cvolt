@@ -8,17 +8,18 @@ export default async function MentionsLegales({ params }: { params: Promise<{ lo
     <LegalPage locale={locale} title="Mentions légales" updated="16 novembre 2026">
       <Section title="Éditeur du site">
         <p>
-          Le site cvolt est édité par <Todo>nom et prénom suivis de « EI », ou raison sociale et forme (ex. SASU)</Todo>
-          <br />Numéro SIREN : <Todo>SIREN</Todo>
-          <br />Adresse : <Todo>adresse postale</Todo>
-          <br />Numéro de TVA intracommunautaire : <Todo>numéro de TVA ou « non applicable, art. 293 B du CGI »</Todo>
-          <br />Directrice de la publication : Salamat Adams
+          Le site cvolt est édité par la société <strong>SERVICE FLOW OPERATIONS</strong>, société à responsabilité
+          limitée unipersonnelle (EURL) en cours de création depuis le 12/10/2026.
+          <br />Siège social : 149 avenue du Maine, 75014 Paris, France
+          <br />Immatriculation : en cours d&apos;immatriculation au Registre du Commerce et des Sociétés (RCS) de Paris
+          <br />Représentée par : Adams Ohikere SALAMAT, gérant
+          <br />Directeur de la publication : Adams Ohikere SALAMAT
         </p>
       </Section>
       <Section id="contact" title="Contact">
         <p>
-          E-mail : <Todo>adresse e-mail de contact</Todo>
-          <br />Téléphone : <Todo>numéro de téléphone</Todo>
+          E-mail : <a href="mailto:salamat.adams@outlook.fr">salamat.adams@outlook.fr</a>
+          <br />Téléphone : 07 67 16 27 84
         </p>
       </Section>
       <Section title="Hébergement">

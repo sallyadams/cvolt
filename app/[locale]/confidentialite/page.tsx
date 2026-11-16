@@ -8,7 +8,7 @@ export default async function Confidentialite({ params }: { params: Promise<{ lo
     <LegalPage locale={locale} title="Politique de confidentialité" updated="16 novembre 2026">
       <Section title="Responsable du traitement">
         <p>
-          <Todo>nom ou raison sociale de l&apos;éditeur</Todo>, joignable à <Todo>adresse e-mail de contact</Todo>,
+          SERVICE FLOW OPERATIONS, EURL (société en cours d&apos;immatriculation), joignable à <a href="mailto:salamat.adams@outlook.fr">salamat.adams@outlook.fr</a>,
           est responsable du traitement de vos données personnelles sur cvolt.
         </p>
       </Section>
@@ -68,7 +68,7 @@ export default async function Confidentialite({ params }: { params: Promise<{ lo
       <Section title="Vos droits">
         <p>
           Vous pouvez accéder à vos données, les rectifier, les supprimer, les récupérer (portabilité), vous opposer
-          à certains traitements ou en demander la limitation en écrivant à <Todo>adresse e-mail de contact</Todo>.
+          à certains traitements ou en demander la limitation en écrivant à <a href="mailto:salamat.adams@outlook.fr">salamat.adams@outlook.fr</a>.
           Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la CNIL (www.cnil.fr).
         </p>
       </Section>

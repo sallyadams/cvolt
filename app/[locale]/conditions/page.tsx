@@ -10,7 +10,7 @@ export default async function Conditions({ params }: { params: Promise<{ locale:
         <p>
           Ces conditions encadrent l&apos;utilisation de cvolt, service en ligne d&apos;aide à la recherche d&apos;emploi
           (analyse de CV, adaptation aux offres, lettres de motivation, préparation d&apos;entretien, suivi de candidatures),
-          édité par <Todo>nom ou raison sociale de l&apos;éditeur</Todo>. Créer un compte vaut acceptation de ces conditions.
+          édité par SERVICE FLOW OPERATIONS, EURL (société en cours d&apos;immatriculation). Créer un compte vaut acceptation de ces conditions.
         </p>
       </Section>
       <Section title="2. Compte">
@@ -37,7 +37,7 @@ export default async function Conditions({ params }: { params: Promise<{ locale:
       <Section title="5. Droit de rétractation">
         <p>
           Vous disposez de 14 jours après la souscription pour vous rétracter (article L221-18 du Code de la consommation),
-          en écrivant à <Todo>adresse e-mail de contact</Todo>. Si vous demandez à utiliser le service immédiatement
+          en écrivant à <a href="mailto:salamat.adams@outlook.fr">salamat.adams@outlook.fr</a>. Si vous demandez à utiliser le service immédiatement
           et reconnaissez perdre votre droit de rétractation une fois le contenu numérique fourni (article L221-28),
           la rétractation n&apos;est plus possible pour les fonctionnalités déjà utilisées.
         </p>
@@ -63,7 +63,7 @@ export default async function Conditions({ params }: { params: Promise<{ locale:
       </Section>
       <Section title="9. Médiation et droit applicable">
         <p>
-          En cas de litige, contactez-nous d&apos;abord à <Todo>adresse e-mail de contact</Todo>. Vous pouvez ensuite
+          En cas de litige, contactez-nous d&apos;abord à <a href="mailto:salamat.adams@outlook.fr">salamat.adams@outlook.fr</a>. Vous pouvez ensuite
           recourir gratuitement au médiateur de la consommation : <Todo>nom et site du médiateur choisi</Todo>.
           Ces conditions sont soumises au droit français.
         </p>
