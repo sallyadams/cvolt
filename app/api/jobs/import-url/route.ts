@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
+import { lookup } from "node:dns/promises"
+import { isIP } from "node:net"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
@@ -38,6 +40,32 @@ function extractText(html: string): string {
     .slice(0, 8000)
 }
 
+/** True for loopback, private, link-local and other non-public addresses. */
+function isPrivateIp(ip: string): boolean {
+  if (isIP(ip) === 6) {
+    const v = ip.toLowerCase()
+    if (v.startsWith("::ffff:")) return isPrivateIp(v.slice(7))
+    return v === "::1" || v === "::" || v.startsWith("fc") || v.startsWith("fd") || v.startsWith("fe80")
+  }
+  const [a, b] = ip.split(".").map(Number)
+  return (
+    a === 10 || a === 127 || a === 0 ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    a >= 224
+  )
+}
+
+async function assertPublicHost(url: URL): Promise<void> {
+  if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("blocked protocol")
+  const host = url.hostname.replace(/^\[|\]$/g, "")
+  if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) throw new Error("blocked host")
+  const addrs = isIP(host) ? [{ address: host }] : await lookup(host, { all: true })
+  if (addrs.length === 0 || addrs.some((a) => isPrivateIp(a.address))) throw new Error("blocked host")
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
@@ -67,7 +95,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(parsed.toString(), {
+    // Follow at most 3 redirects ourselves, checking every hop is a public address.
+    let target = parsed
+    let res: Response | null = null
+    for (let hop = 0; hop < 4; hop++) {
+      try {
+        await assertPublicHost(target)
+      } catch {
+        return NextResponse.json({ error: "This address cannot be imported" }, { status: 400 })
+      }
+      res = await fetch(target.toString(), {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -75,12 +112,20 @@ export async function POST(req: NextRequest) {
         "Accept-Language": "en-US,en;q=0.9",
         "Cache-Control": "no-cache",
       },
-      signal: AbortSignal.timeout(10_000),
-      redirect: "follow",
-    })
+        signal: AbortSignal.timeout(10_000),
+        redirect: "manual",
+      })
+      const loc = res.status >= 300 && res.status < 400 ? res.headers.get("location") : null
+      if (!loc) break
+      target = new URL(loc, target)
+      res = null
+    }
+    if (!res) {
+      return NextResponse.json({ error: "Too many redirects" }, { status: 422 })
+    }
 
     if (!res.ok) {
-      console.warn(`[import-url] ${parsed.hostname} returned ${res.status}`)
+      console.warn(`[import-url] ${target.hostname} returned ${res.status}`)
       return NextResponse.json(
         { error: "Could not fetch that page" },
         { status: 422 }

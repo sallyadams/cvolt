@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import { rateLimit } from "@/lib/rate-limit"
 import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
@@ -55,8 +56,16 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) return null
+
+        // Slow down password guessing: 10 tries per email and 30 per IP every 15 minutes.
+        const email = credentials.email.toLowerCase().trim()
+        const fwd = req?.headers?.["x-forwarded-for"]
+        const ip = (Array.isArray(fwd) ? fwd[0] : fwd)?.split(",")[0]?.trim() || "unknown"
+        if (!rateLimit(`login-email:${email}`, 10, 15 * 60 * 1000) || !rateLimit(`login-ip:${ip}`, 30, 15 * 60 * 1000)) {
+          throw new Error("Trop de tentatives. Réessayez dans 15 minutes.")
+        }
 
         try {
           const user = await prisma.user.findUnique({

@@ -1,6 +1,6 @@
 "use client"
 
-import { useLocale, useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 import Link from "next/link"
 import { useState } from "react"
 import LanguageSwitcher from "@/components/LanguageSwitcher"
@@ -11,84 +11,128 @@ const gray900 = "#0f172a"
 const gray600 = "#64748b"
 const white = "#ffffff"
 
-const PLANS = [
-  {
-    name: "Free",
-    planKey: "free",
-    monthly: "€0",
-    yearly: "€0",
-    desc: "Perfect to get started",
-    features: [
-      { text: "1 CV upload & storage", ok: true },
-      { text: "1 ATS scan per month", ok: true },
-      { text: "Basic job matching", ok: true },
-      { text: "Application tracker", ok: true },
-      { text: "AI CV optimisation", ok: false },
-      { text: "Interview prep", ok: false },
-      { text: "Cover letter generator", ok: false },
-      { text: "LinkedIn optimizer", ok: false },
-      { text: "Priority support", ok: false },
-    ],
-    cta: "Start free",
-    highlighted: false,
-    badge: null,
-  },
-  {
-    name: "Pro",
-    planKey: "pro",
-    monthly: "€9",
-    yearly: "€7",
-    desc: "For serious job seekers",
-    features: [
-      { text: "Unlimited CV uploads", ok: true },
-      { text: "Unlimited ATS scans", ok: true },
-      { text: "AI CV optimisation", ok: true },
-      { text: "Smart job matching", ok: true },
-      { text: "Interview prep", ok: true },
-      { text: "Cover letter generator", ok: true },
-      { text: "LinkedIn optimizer", ok: true },
-      { text: "Bullet point improver", ok: true },
-      { text: "Priority support", ok: true },
-    ],
-    cta: "Start Pro",
-    highlighted: true,
-    badge: "MOST POPULAR",
-  },
-  {
-    name: "Premium",
-    planKey: "premium",
-    monthly: "€19",
-    yearly: "€15",
-    desc: "For maximum results",
-    features: [
-      { text: "Everything in Pro", ok: true },
-      { text: "1-on-1 career coaching", ok: true },
-      { text: "Direct recruiter access", ok: true },
-      { text: "Salary negotiation guide", ok: true },
-      { text: "B2B employer matching", ok: true },
-      { text: "CV ghostwriting service", ok: true },
-      { text: "Custom job alerts", ok: true },
-      { text: "Dedicated account manager", ok: true },
-      { text: "30-day money-back guarantee", ok: true },
-    ],
-    cta: "Go Premium",
-    highlighted: false,
-    badge: "BEST RESULTS",
-  },
-]
+type Feature = { text: string; ok: boolean }
+type Plan = { name: string; planKey: string; monthly: string; desc: string; features: Feature[]; cta: string; highlighted: boolean; badge: string | null }
 
-const FAQS = [
-  { q: "Can I cancel anytime?", a: "Yes — cancel with one click from your dashboard. You keep access until the end of your billing period. No questions asked." },
-  { q: "What payment methods do you accept?", a: "All major credit and debit cards (Visa, Mastercard, Amex), as well as Apple Pay and Google Pay via Stripe." },
-  { q: "Is my data safe?", a: "Absolutely. We encrypt all your data and never share it with third parties. Your CV stays private." },
-  { q: "What is ATS and why does it matter?", a: "ATS (Applicant Tracking System) software scans CVs before humans see them. 75% of CVs are rejected by ATS. Our scanner helps you pass it." },
-  { q: "How does AI CV optimisation work?", a: "Our AI reads the job description and your CV, then suggests keyword additions, bullet improvements, and structure changes to increase your match score." },
-  { q: "Do you offer refunds?", a: "Yes — 30-day money-back guarantee on all paid plans, no questions asked." },
-]
+// Limits below mirror lib/middleware.ts (TIER_LIMITS). Keep them in sync when limits change.
+const COPY: Record<"en" | "fr", {
+  eyebrow: string; title: string; subtitle: string; perMonth: string; plans: Plan[];
+  unsureTitle: string; unsureText: string; startFree: string; learnMore: string; faqTitle: string;
+  faqs: { q: string; a: string }[]; copyright: string; legal: string; privacy: string; terms: string
+}> = {
+  en: {
+    eyebrow: "Pricing",
+    title: "Start free. Upgrade when you're ready.",
+    subtitle: "No hidden fees. Cancel anytime.",
+    perMonth: "/month",
+    plans: [
+      { name: "Free", planKey: "free", monthly: "€0", desc: "Perfect to get started", highlighted: false, badge: null, cta: "Start free",
+        features: [
+          { text: "Upload and store your CV", ok: true },
+          { text: "1 ATS scan", ok: true },
+          { text: "3 bullet point improvements", ok: true },
+          { text: "Application tracker", ok: true },
+          { text: "AI CV optimisation", ok: false },
+          { text: "Cover letter generator", ok: false },
+          { text: "Job matching", ok: false },
+          { text: "Interview practice", ok: false },
+        ] },
+      { name: "Pro", planKey: "pro", monthly: "€9", desc: "For serious job seekers", highlighted: true, badge: "MOST POPULAR", cta: "Start Pro",
+        features: [
+          { text: "20 ATS scans", ok: true },
+          { text: "15 recruiter scans", ok: true },
+          { text: "AI CV tailoring for each job", ok: true },
+          { text: "10 cover letters", ok: true },
+          { text: "10 interview practice scores", ok: true },
+          { text: "10 job matches", ok: true },
+          { text: "LinkedIn summary optimizer", ok: true },
+          { text: "AI career coach (50 messages)", ok: true },
+          { text: "Bullet point improver", ok: true },
+        ] },
+      { name: "Premium", planKey: "premium", monthly: "€19", desc: "For an intensive job search", highlighted: false, badge: "NO LIMITS", cta: "Go Premium",
+        features: [
+          { text: "Everything in Pro", ok: true },
+          { text: "Unlimited ATS and recruiter scans", ok: true },
+          { text: "Unlimited cover letters and CV tailoring", ok: true },
+          { text: "Unlimited interview practice", ok: true },
+          { text: "Unlimited AI career coach", ok: true },
+          { text: "Unlimited Case for Hire", ok: true },
+        ] },
+    ],
+    unsureTitle: "Still unsure?",
+    unsureText: "Start with the Free plan. Upgrade whenever you're ready — your data moves with you.",
+    startFree: "Start for free →",
+    learnMore: "Learn more",
+    faqTitle: "Frequently asked questions",
+    faqs: [
+      { q: "Can I cancel anytime?", a: "Yes — cancel from your dashboard. You keep access until the end of your billing period." },
+      { q: "What payment methods do you accept?", a: "All major credit and debit cards (Visa, Mastercard, Amex), plus Apple Pay and Google Pay, via Stripe. We never see or store your card details." },
+      { q: "Is my data safe?", a: "Your CV is private and never sold. To run the AI features, your text is processed by our providers (Anthropic for AI, Stripe for payments, Vercel for hosting). Details are in our privacy policy." },
+      { q: "What is ATS and why does it matter?", a: "ATS (Applicant Tracking System) software filters CVs before a recruiter reads them. Our scanner shows what is missing so your CV gets through." },
+      { q: "How does AI CV optimisation work?", a: "The AI reads the job offer and your CV, then suggests keywords, stronger bullet points and structure changes. Results are AI-generated: always check them before sending." },
+    ],
+    copyright: "© 2026 cvolt. All rights reserved.",
+    legal: "Legal notice", privacy: "Privacy", terms: "Terms",
+  },
+  fr: {
+    eyebrow: "Tarifs",
+    title: "Commencez gratuitement. Passez à la suite quand vous voulez.",
+    subtitle: "Pas de frais cachés. Résiliable à tout moment.",
+    perMonth: "/mois",
+    plans: [
+      { name: "Gratuit", planKey: "free", monthly: "0 €", desc: "Parfait pour commencer", highlighted: false, badge: null, cta: "Commencer gratuitement",
+        features: [
+          { text: "Import et stockage de votre CV", ok: true },
+          { text: "1 scan ATS", ok: true },
+          { text: "3 améliorations de points clés", ok: true },
+          { text: "Suivi des candidatures", ok: true },
+          { text: "Optimisation du CV par l'IA", ok: false },
+          { text: "Générateur de lettre de motivation", ok: false },
+          { text: "Matching d'offres", ok: false },
+          { text: "Entraînement à l'entretien", ok: false },
+        ] },
+      { name: "Pro", planKey: "pro", monthly: "9 €", desc: "Pour une recherche d'emploi sérieuse", highlighted: true, badge: "LE PLUS CHOISI", cta: "Passer Pro",
+        features: [
+          { text: "20 scans ATS", ok: true },
+          { text: "15 scans recruteur", ok: true },
+          { text: "CV adapté par l'IA à chaque offre", ok: true },
+          { text: "10 lettres de motivation", ok: true },
+          { text: "10 entraînements d'entretien notés", ok: true },
+          { text: "10 matchings d'offres", ok: true },
+          { text: "Optimisation du résumé LinkedIn", ok: true },
+          { text: "Coach carrière IA (50 messages)", ok: true },
+          { text: "Amélioration des points clés du CV", ok: true },
+        ] },
+      { name: "Premium", planKey: "premium", monthly: "19 €", desc: "Pour une recherche intensive", highlighted: false, badge: "SANS LIMITES", cta: "Passer Premium",
+        features: [
+          { text: "Tout le plan Pro", ok: true },
+          { text: "Scans ATS et recruteur illimités", ok: true },
+          { text: "Lettres et CV adaptés illimités", ok: true },
+          { text: "Entraînements d'entretien illimités", ok: true },
+          { text: "Coach carrière IA illimité", ok: true },
+          { text: "Case for Hire illimité", ok: true },
+        ] },
+    ],
+    unsureTitle: "Vous hésitez encore ?",
+    unsureText: "Commencez avec le plan Gratuit. Passez à un plan payant quand vous êtes prêt — vos données vous suivent.",
+    startFree: "Commencer gratuitement →",
+    learnMore: "En savoir plus",
+    faqTitle: "Questions fréquentes",
+    faqs: [
+      { q: "Puis-je résilier à tout moment ?", a: "Oui — depuis votre tableau de bord. Vous gardez l'accès jusqu'à la fin de la période payée." },
+      { q: "Quels moyens de paiement acceptez-vous ?", a: "Toutes les cartes bancaires (Visa, Mastercard, Amex), Apple Pay et Google Pay, via Stripe. Nous ne voyons ni ne stockons vos données de carte." },
+      { q: "Mes données sont-elles protégées ?", a: "Votre CV reste privé et n'est jamais vendu. Pour les fonctions IA, votre texte est traité par nos prestataires (Anthropic pour l'IA, Stripe pour le paiement, Vercel pour l'hébergement). Tous les détails sont dans notre politique de confidentialité." },
+      { q: "C'est quoi un ATS et pourquoi c'est important ?", a: "Un ATS (logiciel de suivi des candidatures) filtre les CV avant qu'un recruteur les lise. Notre scan vous montre ce qui manque pour passer ce filtre." },
+      { q: "Comment fonctionne l'optimisation IA du CV ?", a: "L'IA lit l'offre et votre CV, puis propose des mots-clés, des formulations plus fortes et une meilleure structure. Les résultats sont générés par IA : relisez-les toujours avant envoi." },
+    ],
+    copyright: "© 2026 cvolt. Tous droits réservés.",
+    legal: "Mentions légales", privacy: "Confidentialité", terms: "Conditions",
+  },
+}
 
 export default function PricingPage() {
   const locale = useLocale()
-  const [yearly, setYearly] = useState(false)
+  const c = COPY[locale === "fr" ? "fr" : "en"]
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   return (
@@ -110,34 +154,21 @@ export default function PricingPage() {
       <section style={{ background: `linear-gradient(135deg, ${navy} 0%, #1a1f45 100%)`, padding: "80px 24px 60px", textAlign: "center" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(124,92,252,0.2)", color: "#c4b5fd", padding: "6px 16px", borderRadius: 50, fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 20 }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#c4b5fd" }} />
-          Pricing
+          {c.eyebrow}
         </div>
         <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: white, margin: "0 0 16px", letterSpacing: "-0.04em" }}>
-          Start free. Upgrade when you're ready.
+          {c.title}
         </h1>
         <p style={{ fontSize: 18, color: "rgba(255,255,255,0.6)", margin: "0 0 36px" }}>
-          No hidden fees. Cancel anytime. 30-day money-back guarantee.
+          {c.subtitle}
         </p>
 
-        {/* Toggle */}
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.08)", borderRadius: 50, padding: "6px 6px 6px 16px" }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: !yearly ? white : "rgba(255,255,255,0.5)" }}>Monthly</span>
-          <button onClick={() => setYearly(v => !v)} style={{
-            width: 44, height: 24, borderRadius: 12, background: yearly ? purple : "rgba(255,255,255,0.2)",
-            border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s",
-          }}>
-            <div style={{ position: "absolute", top: 3, left: yearly ? 23 : 3, width: 18, height: 18, borderRadius: "50%", background: white, transition: "left 0.2s" }} />
-          </button>
-          <span style={{ fontSize: 14, fontWeight: 600, color: yearly ? white : "rgba(255,255,255,0.5)" }}>
-            Yearly <span style={{ background: "#4ade80", color: "#14532d", fontSize: 11, fontWeight: 700, padding: "2px 7px", borderRadius: 50, marginLeft: 4 }}>-22%</span>
-          </span>
-        </div>
       </section>
 
       {/* Plans */}
       <section style={{ background: "#f8f9fe", padding: "60px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gap: 24, alignItems: "stretch" }} className="grid grid-cols-1 md:grid-cols-3">
-          {PLANS.map((plan) => (
+          {c.plans.map((plan) => (
             <div key={plan.name} style={{
               background: plan.highlighted ? navy : white,
               borderRadius: 24, padding: "36px 28px",
@@ -147,7 +178,7 @@ export default function PricingPage() {
               position: "relative", display: "flex", flexDirection: "column",
             }}>
               {plan.badge && (
-                <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: plan.name === "Pro" ? "#fbbf24" : purple, color: plan.name === "Pro" ? "#1a1a1a" : white, fontSize: 10, fontWeight: 800, padding: "4px 14px", borderRadius: 50, whiteSpace: "nowrap" }}>
+                <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: plan.planKey === "pro" ? "#fbbf24" : purple, color: plan.planKey === "pro" ? "#1a1a1a" : white, fontSize: 10, fontWeight: 800, padding: "4px 14px", borderRadius: 50, whiteSpace: "nowrap" }}>
                   {plan.badge}
                 </div>
               )}
@@ -157,10 +188,10 @@ export default function PricingPage() {
                 <div style={{ fontSize: 13, color: plan.highlighted ? "rgba(255,255,255,0.5)" : gray600, marginBottom: 24 }}>{plan.desc}</div>
                 <div style={{ marginBottom: 28 }}>
                   <span style={{ fontSize: 48, fontWeight: 900, color: plan.highlighted ? white : gray900 }}>
-                    {yearly ? plan.yearly : plan.monthly}
+                    {plan.monthly}
                   </span>
                   <span style={{ fontSize: 14, color: plan.highlighted ? "rgba(255,255,255,0.45)" : gray600, marginLeft: 6 }}>
-                    /{yearly ? "month, billed yearly" : "month"}
+                    {c.perMonth}
                   </span>
                 </div>
               </div>
@@ -191,14 +222,14 @@ export default function PricingPage() {
       {/* Comparison callout */}
       <section style={{ background: white, padding: "60px 24px" }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: gray900, margin: "0 0 12px" }}>Still unsure?</h2>
-          <p style={{ fontSize: 16, color: gray600, margin: "0 0 32px" }}>Start with the Free plan. Upgrade whenever you're ready — your data moves with you.</p>
+          <h2 style={{ fontSize: 28, fontWeight: 800, color: gray900, margin: "0 0 12px" }}>{c.unsureTitle}</h2>
+          <p style={{ fontSize: 16, color: gray600, margin: "0 0 32px" }}>{c.unsureText}</p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <Link href={`/${locale}/signup?plan=free`} style={{ background: purple, color: white, padding: "13px 28px", borderRadius: 10, textDecoration: "none", fontWeight: 700, fontSize: 15 }}>
-              Start for free →
+              {c.startFree}
             </Link>
             <Link href={`/${locale}`} style={{ background: "#f1f5f9", color: gray900, padding: "13px 28px", borderRadius: 10, textDecoration: "none", fontWeight: 600, fontSize: 15 }}>
-              Learn more
+              {c.learnMore}
             </Link>
           </div>
         </div>
@@ -207,9 +238,9 @@ export default function PricingPage() {
       {/* FAQ */}
       <section style={{ background: "#f8f9fe", padding: "60px 24px" }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: gray900, textAlign: "center", margin: "0 0 40px" }}>Frequently asked questions</h2>
+          <h2 style={{ fontSize: 28, fontWeight: 800, color: gray900, textAlign: "center", margin: "0 0 40px" }}>{c.faqTitle}</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {FAQS.map((faq, i) => (
+            {c.faqs.map((faq, i) => (
               <div key={i} style={{ background: white, borderRadius: 12, border: "1px solid #f0f0f0", overflow: "hidden" }}>
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -234,7 +265,12 @@ export default function PricingPage() {
         <Link href={`/${locale}`} style={{ fontSize: 18, fontWeight: 800, color: white, textDecoration: "none" }}>
           c<span style={{ color: purple }}>volt</span>
         </Link>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", marginTop: 8 }}>© 2025 CVolt. All rights reserved.</p>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", marginTop: 8 }}>{c.copyright}</p>
+        <div style={{ display: "flex", gap: 18, justifyContent: "center", marginTop: 8, flexWrap: "wrap" }}>
+          <Link href={`/${locale}/mentions-legales`} style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>{c.legal}</Link>
+          <Link href={`/${locale}/confidentialite`} style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>{c.privacy}</Link>
+          <Link href={`/${locale}/conditions`} style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>{c.terms}</Link>
+        </div>
       </footer>
     </main>
   )

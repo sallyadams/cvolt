@@ -100,7 +100,7 @@ export default function AuthErrorPage() {
             <ul className="space-y-1 list-none">
               {[
                 "NEXTAUTH_SECRET  — strong random secret (openssl rand -hex 32)",
-                "NEXTAUTH_URL     — https://cvolt-app.vercel.app",
+                "NEXTAUTH_URL     — https://cvolt.vercel.app",
                 "DATABASE_URL     — PostgreSQL connection string",
                 "ANTHROPIC_API_KEY",
               ].map((v) => (

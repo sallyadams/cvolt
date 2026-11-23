@@ -9,14 +9,16 @@
     "getStarted": "Get Started Free"
   },
   "hero": {
-    "eyebrow": "Your career engine is ready",
-    "headline": "Get Hired with cvolt",
-    "subtitle": "Your skills. The right opportunities. All in one app. From CV to Contract — in one flow.",
+    "eyebrow": "Your AI career coach",
+    "headline": "Turn your CV into interviews",
+    "subtitle": "Free ATS score, a CV and cover letter tailored to each job, then AI interview practice. All in one place.",
     "ctaPrimary": "Start for free →",
     "ctaSecondary": "See how it works",
     "trust1": "Free to start",
     "trust2": "AI-powered",
-    "trust3": "500+ hired"
+    "trust3": "Free ATS score",
+    "headlineStart": "Turn your CV into",
+    "headlineAccent": "interviews."
   },
   "problem": {
     "eyebrow": "The Problem",
@@ -27,7 +29,8 @@
       "No real guidance on what employers want",
       "Applications = no feedback"
     ],
-    "result": "Talented people stay unseen."
+    "result": "Talented people stay unseen.",
+    "resultLabel": "Result:"
   },
   "solution": {
     "eyebrow": "The Solution",
@@ -44,21 +47,52 @@
     "eyebrow": "How It Works",
     "title": "4 steps to your next job",
     "steps": [
-      { "num": "1", "title": "Create Your Profile", "desc": "Build a strong CV with your skills, experience and goals." },
-      { "num": "2", "title": "Discover Jobs", "desc": "Smart recommendations based on your profile." },
-      { "num": "3", "title": "Apply Easily", "desc": "Apply in one tap + send personalised messages." },
-      { "num": "4", "title": "Track & Get Hired", "desc": "Follow your applications and get interview updates." }
+      {
+        "num": "1",
+        "title": "Create Your Profile",
+        "desc": "Build a strong CV with your skills, experience and goals."
+      },
+      {
+        "num": "2",
+        "title": "Discover Jobs",
+        "desc": "Smart recommendations based on your profile."
+      },
+      {
+        "num": "3",
+        "title": "Apply Easily",
+        "desc": "Apply in one tap + send personalised messages."
+      },
+      {
+        "num": "4",
+        "title": "Track & Get Hired",
+        "desc": "Follow your applications and get interview updates."
+      }
     ]
   },
   "whyDifferent": {
     "eyebrow": "Why cvolt is Different",
     "title": "Everything you need to win",
     "items": [
-      { "title": "Personalised Matches", "desc": "Not random jobs" },
-      { "title": "Speed", "desc": "Apply in seconds" },
-      { "title": "AI Optimisation", "desc": "Your CV improves automatically" },
-      { "title": "Application Tracking", "desc": "Dashboard that keeps you updated" },
-      { "title": "Direct Employer Connection", "desc": "Get noticed by the right companies" }
+      {
+        "title": "Personalised Matches",
+        "desc": "Not random jobs"
+      },
+      {
+        "title": "Speed",
+        "desc": "Apply in seconds"
+      },
+      {
+        "title": "AI Optimisation",
+        "desc": "Your CV improves automatically"
+      },
+      {
+        "title": "Application Tracking",
+        "desc": "Dashboard that keeps you updated"
+      },
+      {
+        "title": "Direct Employer Connection",
+        "desc": "Get noticed by the right companies"
+      }
     ]
   },
   "journey": {
@@ -70,17 +104,34 @@
     },
     "after": {
       "label": "After cvolt",
-      "steps": ["Optimised CV", "10 Targeted Applications", "3 Interviews", "1 Job Offer"]
+      "steps": [
+        "Optimised CV",
+        "10 Targeted Applications",
+        "3 Interviews",
+        "1 Job Offer"
+      ]
     }
   },
   "users": {
     "eyebrow": "Target Users",
     "title": "Built for every career stage",
     "personas": [
-      { "title": "Students & Graduates", "desc": "Start your career with confidence" },
-      { "title": "Career Switchers", "desc": "Switch with the right opportunities" },
-      { "title": "Professionals", "desc": "Level up your career" },
-      { "title": "Freelancers", "desc": "Find stability and grow your income" }
+      {
+        "title": "Students & Graduates",
+        "desc": "Start your career with confidence"
+      },
+      {
+        "title": "Career Switchers",
+        "desc": "Switch with the right opportunities"
+      },
+      {
+        "title": "Professionals",
+        "desc": "Level up your career"
+      },
+      {
+        "title": "Freelancers",
+        "desc": "Find stability and grow your income"
+      }
     ]
   },
   "pricing": {
@@ -93,7 +144,12 @@
         "price": "€0",
         "period": "forever",
         "desc": "Perfect to get started",
-        "features": ["1 CV upload", "1 ATS scan", "Basic job matching", "Application tracker"],
+        "features": [
+          "1 CV upload",
+          "1 ATS scan",
+          "3 bullet point improvements",
+          "Application tracker"
+        ],
         "cta": "Start free",
         "highlighted": false
       },
@@ -102,7 +158,15 @@
         "price": "€9",
         "period": "per month",
         "desc": "For serious job seekers",
-        "features": ["Unlimited CV uploads", "Unlimited ATS scans", "AI CV optimisation", "Smart job matching", "Interview prep", "Cover letter generator", "LinkedIn optimizer", "Priority support"],
+        "features": [
+          "20 ATS scans",
+          "CV tailored to each job",
+          "10 cover letters",
+          "10 interview practice scores",
+          "10 job matches",
+          "LinkedIn optimizer",
+          "AI career coach"
+        ],
         "cta": "Start Pro",
         "highlighted": true
       },
@@ -110,8 +174,14 @@
         "name": "Premium",
         "price": "€19",
         "period": "per month",
-        "desc": "For maximum results",
-        "features": ["Everything in Pro", "1-on-1 career coaching", "Recruiter direct access", "Salary negotiation guide", "B2B employer connection"],
+        "desc": "For an intensive job search",
+        "features": [
+          "Everything in Pro",
+          "Unlimited ATS and recruiter scans",
+          "Unlimited cover letters and CV tailoring",
+          "Unlimited interview practice",
+          "Unlimited AI career coach"
+        ],
         "cta": "Go Premium",
         "highlighted": false
       }
@@ -120,25 +190,37 @@
   "vision": {
     "eyebrow": "Our Vision",
     "title": "cvolt is not just a job app. It's a career engine.",
-    "points": ["From job search", "To career growth", "To income stability"],
-    "quote": "We don't just help you apply — we help you win."
+    "points": [
+      "From job search",
+      "To career growth",
+      "To income stability"
+    ],
+    "quote": "We don't just help you apply — we help you win.",
+    "signature": "— The cvolt team"
   },
   "cta": {
-    "title": "Download cvolt today",
-    "subtitle": "Your next job is one tap away.",
-    "points": ["Build your CV", "Apply smarter", "Get hired faster"],
+    "title": "Get started with cvolt today",
+    "subtitle": "Your next interview starts here.",
+    "points": [
+      "Build your CV",
+      "Apply smarter",
+      "Get hired faster"
+    ],
     "button": "Get Started Free",
-    "employers": "Are you an employer? Contact us"
+    "employers": "Are you an employer? Contact us",
+    "webButton": "Start on Web — Free"
   },
   "footer": {
     "tagline": "Your Career. Your Future. Our Mission.",
-    "copyright": "© 2025 CVolt. All rights reserved.",
+    "copyright": "© 2026 cvolt. All rights reserved.",
     "links": {
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Service",
+      "legal": "Legal notice",
+      "privacy": "Privacy policy",
+      "terms": "Terms",
       "contact": "Contact",
-      "employers": "For Employers"
-    }
+      "employers": "For employers"
+    },
+    "slogan": "Your Career. Our Mission."
   },
   "language": {
     "switch": "Language",
@@ -152,5 +234,27 @@
     "back": "Back",
     "next": "Next",
     "cancel": "Cancel"
+  },
+  "build": {
+    "title": "Build your CV with AI",
+    "subtitle": "Enter your name and target role: the AI prepares an ATS-optimised CV template. Fill in everything in [brackets] with your real details.",
+    "form": {
+      "name": "Your name",
+      "namePlaceholder": "e.g. Jane Smith",
+      "jobTitle": "Target role",
+      "jobTitlePlaceholder": "e.g. Digital Marketing Specialist",
+      "jobDescription": "Job description",
+      "jobDescriptionPlaceholder": "Paste the job offer to match its keywords",
+      "generate": "Generate my CV",
+      "generating": "Generating…"
+    },
+    "payment": {
+      "success": "Payment confirmed! You can download your CV.",
+      "loading": "Verifying payment…",
+      "cancelled": "Payment cancelled. Your CV is still here.",
+      "error": "We couldn't verify the payment.",
+      "paying": "Pay and download the PDF",
+      "downloadButton": "Download PDF"
+    }
   }
 }

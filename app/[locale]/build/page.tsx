@@ -163,6 +163,11 @@ export default function BuildPage() {
         body: JSON.stringify({ name, jobTitle, jobDescription }),
       });
       const data = await res.json();
+      if (res.status === 401 || data.login_required) {
+        const back = typeof window !== "undefined" ? window.location.pathname : "/build";
+        window.location.href = `/signup?callbackUrl=${encodeURIComponent(back)}`;
+        return;
+      }
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Generation failed");
       }
@@ -277,7 +282,7 @@ export default function BuildPage() {
                   <label htmlFor="jd" className="block text-sm font-semibold mb-2">
                     {t('build.form.jobDescription')}{" "}
                     <span className="text-xs font-normal text-gray-500">
-                      (optional — boosts ATS score)
+                      {locale === "fr" ? "(améliore le score ATS)" : "(boosts ATS score)"}
                     </span>
                   </label>
                   <textarea

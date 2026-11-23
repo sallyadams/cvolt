@@ -43,3 +43,11 @@ next-env.d.ts
 .vercel
 
 /app/generated/prisma
+
+# env files and local databases (never commit secrets or user data)
+.env*
+!.env.example
+*.db
+*.db-journal
+*.bak
+build-output.log
