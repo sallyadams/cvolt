@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { CLAUDE_MODEL } from "@/lib/ai-model"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: CLAUDE_MODEL,
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userContent }],

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { limitRequest } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "employer-signup", 5, 60 * 60 * 1000)
+  if (limited) return limited
+
   try {
     const body = await req.json().catch(() => null)
     if (!body) {

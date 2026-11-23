@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { CLAUDE_MODEL } from "@/lib/ai-model"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
 import { COACH_TOOLS, executeCoachTool } from "@/lib/coach-tools"
@@ -49,7 +50,7 @@ export async function POST(
 
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-6",
+        model: CLAUDE_MODEL,
         max_tokens: 4000,
         system: COACH_SYSTEM_PROMPT,
         tools: COACH_TOOLS,

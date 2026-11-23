@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { CLAUDE_MODEL } from "@/lib/ai-model"
 import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
@@ -90,7 +91,7 @@ Return ONLY valid JSON with NO markdown, NO code fences, NO extra text — just 
     console.log(`[ats-scan] Starting scan for cv=${cv_id} user=${userId} textLen=${cvText.length}`)
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: CLAUDE_MODEL,
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],

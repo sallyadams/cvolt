@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { CLAUDE_MODEL } from "@/lib/ai-model"
 import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
@@ -127,7 +128,7 @@ export async function POST(req: NextRequest) {
     const userMessage = `JOB DESCRIPTION:\n${jobText}\n\nCANDIDATE CV:\n${cvText}\n\nEVIDENCE CATALOG (cite ONLY these items):\n${catalogText}`
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: CLAUDE_MODEL,
       max_tokens: 2000,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userMessage }],

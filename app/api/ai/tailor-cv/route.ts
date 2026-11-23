@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { CLAUDE_MODEL } from "@/lib/ai-model"
 import { prisma } from "@/lib/prisma"
 import Anthropic from "@anthropic-ai/sdk"
 import { requireAuthAndFeature, incrementAICredits } from "@/lib/middleware"
@@ -51,7 +52,7 @@ Return ONLY valid JSON with the same structure as the input CV JSON, with modifi
     const userMessage = `JOB DESCRIPTION:\n${job.rawText}\n\nORIGINAL CV JSON:\n${cv.parsedJson}`
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: CLAUDE_MODEL,
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],

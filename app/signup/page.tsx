@@ -12,6 +12,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [plan, setPlan] = useState<string | null>(null)
+  const [callbackUrl, setCallbackUrl] = useState<string | null>(null)
   const router = useRouter()
 
   // Read ?plan= from URL client-side only (avoids useSearchParams SSR suspension
@@ -21,13 +22,16 @@ export default function SignupPage() {
       const params = new URLSearchParams(window.location.search)
       const p = params.get("plan")
       if (p) setPlan(p)
+      const cb = params.get("callbackUrl")
+      // only same-site paths, never "//evil.com" or full URLs
+      if (cb && cb.startsWith("/") && !cb.startsWith("//")) setCallbackUrl(cb)
     } catch (e) {
       console.error("[signup] failed to read plan param:", e)
     }
   }, [])
 
   const destination =
-    plan && plan !== "free" ? `/upgrade?plan=${plan}` : "/dashboard"
+    callbackUrl ?? (plan && plan !== "free" ? `/upgrade?plan=${plan}` : "/dashboard")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

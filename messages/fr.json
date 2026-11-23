@@ -234,5 +234,27 @@
     "back": "Retour",
     "next": "Suivant",
     "cancel": "Annuler"
+  },
+  "build": {
+    "title": "Créez votre CV avec l'IA",
+    "subtitle": "Indiquez votre nom et le poste visé : l'IA prépare un modèle de CV optimisé ATS. Complétez les éléments entre [crochets] avec vos vraies informations.",
+    "form": {
+      "name": "Votre nom",
+      "namePlaceholder": "Ex. Marie Dupont",
+      "jobTitle": "Poste visé",
+      "jobTitlePlaceholder": "Ex. Chargée de marketing digital",
+      "jobDescription": "Offre d'emploi",
+      "jobDescriptionPlaceholder": "Collez l'offre pour adapter les mots-clés",
+      "generate": "Générer mon CV",
+      "generating": "Génération en cours…"
+    },
+    "payment": {
+      "success": "Paiement confirmé ! Vous pouvez télécharger votre CV.",
+      "loading": "Vérification du paiement…",
+      "cancelled": "Paiement annulé. Votre CV est toujours là.",
+      "error": "Le paiement n'a pas pu être vérifié.",
+      "paying": "Payer et télécharger le PDF",
+      "downloadButton": "Télécharger le PDF"
+    }
   }
 }

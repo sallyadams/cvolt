@@ -234,5 +234,27 @@
     "back": "Back",
     "next": "Next",
     "cancel": "Cancel"
+  },
+  "build": {
+    "title": "Build your CV with AI",
+    "subtitle": "Enter your name and target role: the AI prepares an ATS-optimised CV template. Fill in everything in [brackets] with your real details.",
+    "form": {
+      "name": "Your name",
+      "namePlaceholder": "e.g. Jane Smith",
+      "jobTitle": "Target role",
+      "jobTitlePlaceholder": "e.g. Digital Marketing Specialist",
+      "jobDescription": "Job description",
+      "jobDescriptionPlaceholder": "Paste the job offer to match its keywords",
+      "generate": "Generate my CV",
+      "generating": "Generating…"
+    },
+    "payment": {
+      "success": "Payment confirmed! You can download your CV.",
+      "loading": "Verifying payment…",
+      "cancelled": "Payment cancelled. Your CV is still here.",
+      "error": "We couldn't verify the payment.",
+      "paying": "Pay and download the PDF",
+      "downloadButton": "Download PDF"
+    }
   }
 }
