@@ -8,7 +8,7 @@
   },
   "env": {
     "NODE_ENV": "production",
-    "NEXTAUTH_URL": "https://cvolt-app.vercel.app",
-    "NEXT_PUBLIC_APP_URL": "https://cvolt-app.vercel.app"
+    "NEXTAUTH_URL": "https://cvolt.vercel.app",
+    "NEXT_PUBLIC_APP_URL": "https://cvolt.vercel.app"
   }
 }
