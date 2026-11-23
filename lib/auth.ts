@@ -7,7 +7,10 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
 const secret = process.env.NEXTAUTH_SECRET
-if (!secret && process.env.NODE_ENV === "production") {
+// Fail loudly when the app runs without a secret, but not while `next build`
+// collects page data (Vercel previews may not expose every runtime secret).
+const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build"
+if (!secret && process.env.NODE_ENV === "production" && !isBuildPhase) {
   throw new Error(
     "[auth] NEXTAUTH_SECRET is not set. " +
     "Add it to your Vercel environment variables. " +
